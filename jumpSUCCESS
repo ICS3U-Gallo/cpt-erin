@@ -1,0 +1,204 @@
+int x, y, xGround, yGround, boxSize, xHP, yHP;
+float jumpSpeed, gravity, xSun, ySun, sunSize, ySunSpeed, ySunDeccel, xButt, 
+      yStartButt, buttLength, buttHeight, xCtrlsButt, yCtrlsButt, xStoryButt, 
+      yStoryButt, xSunSpeed, xSunDeccel, r, g, b, xTrunk, yTrunk, widthTrunk, 
+      heightTrunk;
+String screen;
+
+void setup() {
+  size(700, 550);
+  xButt = 175;
+  yStartButt = 240;
+  buttLength = width/2;
+  buttHeight = 70;
+  
+  yCtrlsButt = yStartButt + buttHeight + 20;
+ 
+  yStoryButt = yStartButt + (buttHeight + 20) * 2;
+  
+  r = 240;
+  g = 248;
+  b = 255;
+  
+  xGround = 0;
+  yGround = 430;
+  boxSize = 50;
+  x = 200;
+  y = yGround - boxSize;
+  
+  widthTrunk = 50;
+  heightTrunk = 155;
+  xTrunk = width * 0.60;
+  yTrunk = yGround - heightTrunk;
+  
+  xHP = 50;
+  yHP = 10;
+ 
+  sunSize = 150;
+  xSun = width * 0.95;
+  ySun = height + sunSize;
+  ySunSpeed = 2.5;
+  ySunDeccel = 0.005;
+  xSunSpeed = 0.75;
+  xSunDeccel = 0.0005;
+
+  //jumpSpeed = 0;
+  gravity = 0.5;
+  
+  screen = "menu";
+}
+
+//void jump() {
+  
+
+ 
+//}
+
+void menu() {
+  background(255);
+  
+  textSize(72);
+  fill(#fedede);
+  text("MENU", (width/2) - 110, height/3);
+  
+  // Start Button
+  noStroke();  
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+    fill(255, 156, 239);
+  } else {
+    fill(255, 215, 249);
+  }
+  rect(xButt, yStartButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("START", xButt + 85, yStartButt + 55);
+  
+  // Controls Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yCtrlsButt && mouseY < yCtrlsButt + buttHeight) {
+    fill(249, 155, 211);
+  } else {
+    fill(255, 195, 232);
+  }
+  rect(xButt, yCtrlsButt, buttLength, buttHeight);
+  
+  // Story Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStoryButt && mouseY < yStoryButt + buttHeight) {
+    fill(255, 62, 178);
+  } else {
+    fill(255, 118, 201);
+  }
+  rect(xButt, yStoryButt, buttLength, buttHeight);
+}
+
+void mouseReleased() {
+  if(mouseX > xButt && mouseX < xButt + buttLength &&
+     mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+    if (screen.equals("menu")) {
+      screen = "gameScreen";
+    }
+   }  
+}
+
+void gameScreen() {
+ // With the keyPressed, it'll trigger if the key is being held down. 
+  // w/o it, it'll just move right forever
+  // need keyCode for RIGHT, LEFT, UP, DOWN, ALT, CONTROL, SHIFT ?
+  // need key for ENTER, BACKSPACE, TAB, RETURN, ESC, DELETE
+  // or wait u can just println(keyCode); and see for urself what it is. same as javascript keycodes?
+ // if (keyPressed) {
+ //   if (keyCode == 39) {
+ //     x += 1;
+ //   } else if (keyCode == 37) {
+ //     x -= 1;
+ //   } 
+    
+ //   //jump
+ //   if (keyCode == 32) {
+ //    jumpSpeed = 9.5;
+ //   } 
+ //} 
+
+  y -= jumpSpeed;
+  jumpSpeed -= gravity;
+  
+    
+ if (y > yGround - boxSize) {
+    y = yGround - boxSize;
+    //jumpSpeed = 0;
+    //keyCode = 9;
+  }
+
+  xSun -= xSunSpeed;
+  xSunSpeed -= xSunDeccel;
+  ySun -= ySunSpeed;
+  ySunSpeed -= ySunDeccel;
+  
+  if (ySun < (yGround - sunSize)) {
+    r -= 0.05;
+    g -= 0.05;
+    b -= 1;
+    xHP = 50 - second();
+  } else {
+    r += 0.05;
+    g += 0.05;
+    b += 1;
+  }
+  
+  background(r, g, b);
+  noStroke();
+  
+  // Sun
+  fill(255,255,102);
+  ellipse(xSun, ySun, sunSize, sunSize);
+  
+  // Tree Trunk
+  fill(127, 102, 23);
+  rect(xTrunk, yTrunk, widthTrunk, heightTrunk);
+  
+  // Ground
+  fill(30, 110, 80);
+  rect(xGround, yGround, width, height/2);
+  
+  // Player
+  fill(#ffcece);
+  rect(x, y, boxSize, boxSize);
+  
+  // HP
+  fill(173,255,47);
+  rect(x + 1, y - 20, xHP, yHP); 
+
+  println("JumpSpeed: " + jumpSpeed + "   KeyCode: " + keyCode + 
+          "   HP: " + xHP + "   key: " + key);
+}
+
+void draw() {
+
+ if (screen.equals("menu")) {
+   menu();
+ } else if (screen.equals("gameScreen")) {
+   gameScreen();
+ }
+  
+}
+
+void keyPressed() {
+  if (keyCode == 39) {
+    x += 6;
+  } else if (keyCode == 37) {
+    x -= 6;
+  } 
+  
+  if (y == yGround - boxSize) {
+    if (keyCode == 32 || keyCode == 38) {
+       jumpSpeed = 9.5;
+    }
+  }
+}
+
+void keyReleased() {
+ 
+}
