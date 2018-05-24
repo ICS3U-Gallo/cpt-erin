@@ -1,3 +1,6 @@
+// TESTING
+// not very organized
+
 int x, y, xGround, yGround, boxSize, xHP, yHP;
 float jumpSpeed, gravity, xSun, ySun, sunSize, ySunSpeed, ySunDeccel, xButt, 
       yStartButt, buttLength, buttHeight, xCtrlsButt, yCtrlsButt, xStoryButt, 
@@ -84,6 +87,10 @@ void menu() {
   }
   rect(xButt, yCtrlsButt, buttLength, buttHeight);
   
+  textSize(55);
+  fill(255);
+  text("CONTROLS", xButt + 35, yCtrlsButt + 55);
+  
   // Story Button
   if (mouseX > xButt && mouseX < xButt + buttLength &&
       mouseY > yStoryButt && mouseY < yStoryButt + buttHeight) {
@@ -92,6 +99,10 @@ void menu() {
     fill(255, 118, 201);
   }
   rect(xButt, yStoryButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("STORY", xButt + 85, yStoryButt + 55);
 }
 
 void mouseReleased() {
@@ -122,7 +133,7 @@ void gameScreen() {
  //   } 
  //} 
 
-  y -= jumpSpeed;
+  y -= jumpSpeed;                 // yPlayer technically has jumpSpeed always subtracting from it
   jumpSpeed -= gravity;
   
     
@@ -186,19 +197,17 @@ void draw() {
 }
 
 void keyPressed() {
-  if (keyCode == 39) {
+  if (keyCode == 39) {              // move right
     x += 6;
-  } else if (keyCode == 37) {
+  } else if (keyCode == 37) {       // move left  
     x -= 6;
   } 
   
+  // will jump if player on ground
   if (y == yGround - boxSize) {
-    if (keyCode == 32 || keyCode == 38) {
+    if (keyCode == 32 || keyCode == 38) { // can press spacebar or up key
        jumpSpeed = 9.5;
     }
   }
 }
 
-void keyReleased() {
- 
-}
