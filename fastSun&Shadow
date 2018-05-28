@@ -1,0 +1,276 @@
+// TESTING
+// not very organized
+
+int x, y, xGround, yGround, boxSize, xHP, yHP, sec;
+float jumpSpeed, gravity, xSun, ySun, sunSize, ySunSpeed, ySunDeccel, xButt, 
+      yStartButt, buttLength, buttHeight, xCtrlsButt, yCtrlsButt, xStoryButt, 
+      yStoryButt, xSunSpeed, xSunDeccel, r, g, b, xTrunk, yTrunk, widthTrunk, 
+      heightTrunk, xTree, yTree, treeDiameter, xShadow1, yShadow1, xShadow2,
+      yShadow2, xShadow3, yShadow3, q, w, e;
+String screen;
+
+void setup() {
+  size(850, 650);
+  
+  // Buttons
+  xButt = 175;
+  yStartButt = 240;
+  buttLength = width/2;
+  buttHeight = 70;
+  
+  yCtrlsButt = yStartButt + buttHeight + 20;
+ 
+  yStoryButt = yStartButt + (buttHeight + 20) * 2;
+  
+  // Background Colours
+  r = 240;
+  g = 248;
+  b = 255;
+  
+  xGround = 0;
+  yGround = 470;
+  
+  // Player
+  boxSize = 50;
+  x = 200;
+  y = yGround - boxSize;
+  
+  // Tree
+  widthTrunk = 50;
+  heightTrunk = 160;
+  xTrunk = width * 0.6;
+  yTrunk = yGround - heightTrunk;
+  treeDiameter = 155;
+  xTree = xTrunk + widthTrunk/2;
+  yTree = yTrunk - treeDiameter/4;
+  
+  //Shadow
+  xShadow1 = xTree;
+  yShadow1 = yTree; 
+  //xShadow2 = x;
+  yShadow2 = yGround; 
+  xShadow3 = xTree; 
+  yShadow3 = yTrunk + heightTrunk;
+  
+  xHP = 50;
+  yHP = 10;
+ 
+ // Sun
+  sunSize = 150;
+  xSun = width + sunSize/2;
+  ySun = height + sunSize;
+  //ySunSpeed = 3;
+  //ySunDeccel = 0.0065;
+  ySunSpeed = 2.7;
+  ySunDeccel = 0.0055;
+  xSunSpeed = 0.9;
+   
+  //jumpSpeed = 0;
+  gravity = 0.5;
+  sec = second();
+  screen = "menu";
+}
+
+
+void menu() {
+  background(255);
+  
+  textSize(72);
+  fill(#fedede);
+  text("MENU", (width/2) - 110, height/3);
+  
+  // Start Button
+  noStroke();  
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+    fill(255, 156, 239);
+  } else {
+    fill(255, 215, 249);
+  }
+  rect(xButt, yStartButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("START", xButt + 85, yStartButt + 55);
+  
+  // Controls Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yCtrlsButt && mouseY < yCtrlsButt + buttHeight) {
+    fill(249, 155, 211);
+  } else {
+    fill(255, 195, 232);
+  }
+  rect(xButt, yCtrlsButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("CONTROLS", xButt + 35, yCtrlsButt + 55);
+  
+  // Story Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStoryButt && mouseY < yStoryButt + buttHeight) {
+    fill(255, 62, 178);
+  } else {
+    fill(255, 118, 201);
+  }
+  rect(xButt, yStoryButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("STORY", xButt + 85, yStoryButt + 55);
+}
+
+void mouseReleased() {
+  if(mouseX > xButt && mouseX < xButt + buttLength &&
+     mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+    if (screen.equals("menu")) {
+      screen = "gameScreen";
+    }
+   }  
+}
+
+void tree() {
+  // Tree Trunk
+  fill(127, 102, 23);
+  rect(xTrunk, yTrunk, widthTrunk, heightTrunk);
+  fill(131, 103, 10);
+  rect(xTrunk + widthTrunk/6, yTrunk, widthTrunk*0.65, heightTrunk);
+  
+  // Tree leaves
+  for (int i = 0; i < 6; i++) {
+    fill(79 + i*4, 168 + i*7, 10 + i*11);
+    ellipse(xTree + i*5, yTree - i*7.5, treeDiameter - (i*19), treeDiameter - (i*19));
+  }
+}
+
+void shadow() {
+  fill(255, 250, 230);
+  if (xSun > xTrunk + widthTrunk/2) {
+    triangle(xShadow1, yShadow1, (xTrunk + widthTrunk/2 - w), 
+             yShadow2, xShadow3, yShadow3);
+  } else {
+    triangle(xShadow1, yShadow1, (xTrunk + widthTrunk/2 + w), 
+             yShadow2, xShadow3, yShadow3);
+  }
+}
+
+void gameScreen() {
+ // With the keyPressed, it'll trigger if the key is being held down. 
+  // w/o it, it'll just move right forever
+  // need keyCode for RIGHT, LEFT, UP, DOWN, ALT, CONTROL, SHIFT ?
+  // need key for ENTER, BACKSPACE, TAB, RETURN, ESC, DELETE
+  // or wait u can just println(keyCode); and see for urself what it is. same as javascript keycodes?
+ // if (keyPressed) {
+ //   if (keyCode == 39) {
+ //     x += 1;
+ //   } else if (keyCode == 37) {
+ //     x -= 1;
+ //   } 
+    
+ //   //jump
+ //   if (keyCode == 32) {
+ //    jumpSpeed = 9.5;
+ //   } 
+ //} 
+
+  y -= jumpSpeed;                 // yPlayer technically has jumpSpeed always subtracting from it
+  jumpSpeed -= gravity;
+  
+    
+ if (y > yGround - boxSize) {
+    y = yGround - boxSize;
+    //jumpSpeed = 0;
+    //keyCode = 9;
+  }
+  
+  if (ySun < (yGround - sunSize/2)) {
+    r -= 0.05;
+    g -= 0.05;
+    b -= 1;
+    xHP = 50 - sec;
+  } else {
+    r += 0.05;
+    g += 0.05;
+    b += 1;
+  }
+  
+  background(r, g, b);
+  noStroke();
+  
+  // Sun
+  fill(255,255,102);
+  ellipse(xSun, ySun, sunSize, sunSize);
+  
+  xSun -= xSunSpeed;
+  ySun -= ySunSpeed;
+  ySunSpeed -= ySunDeccel;
+  
+  // pythagorean theorem?
+  q = yGround - ySun;        // a
+  e = 300;                   // c
+  w = sqrt((e*e) - (q*q));   // b
+  
+  //if (xSun > xTree + treeDiameter/2 && ySun < 150) {
+  //  xSunSpeed = 0.4;
+  //  ySunSpeed = 0.3;
+  //} else if (xSun <= xTree + treeDiameter/2 && xSun > width/3 && ySun < 100) {
+  //  xSunSpeed = 1;
+  //  ySunSpeed = 0;
+  //} else if (xSun < width/3 && ySun < 100) {
+  //  xSunSpeed = -0.4;
+  //  ySunSpeed = -0.3;
+  //}
+  
+  // draws shadow
+  shadow();
+ 
+  // draws tree
+  tree();
+  
+  // Ground
+  fill(246, 246, 246);
+  rect(xGround, yGround, width, height/2);
+  fill(255);
+  rect(xGround, yGround, width, height/15);
+  
+  // Player
+  fill(#ffcece);
+  rect(x, y, boxSize, boxSize);
+  
+  // HP
+  fill(173,255,47);
+  rect(x + 1, y - 20, xHP, yHP); 
+
+  println("JmpSpe: " + jumpSpeed + "   KeyCde: " + keyCode + 
+          "   HP: " + xHP + "   key: " + key + " q:" + q + 
+          " sec: " + second());
+}
+
+void draw() {
+
+ if (screen.equals("menu")) {
+   menu();
+ } else if (screen.equals("gameScreen")) {
+   gameScreen();
+ }
+  
+}
+
+void keyPressed() {
+  if (keyCode == 39) {    // move right
+    if (x + boxSize < width) {
+      x += 6;
+    }
+  } else if (keyCode == 37) {       // move left  
+    if (x > 0) {
+      x -= 6;
+    }
+  } 
+  
+  // will jump if player on ground
+  if (y == yGround - boxSize) {
+    if (keyCode == 32 || keyCode == 38) { // can press spacebar or up key
+       jumpSpeed = 9.5;
+    }
+  }
+}
