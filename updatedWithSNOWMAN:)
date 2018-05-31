@@ -1,0 +1,353 @@
+// TESTING
+// not very organized
+PVector[] enemyLoc;
+PVector[] enemySpeed;
+int xGround, yGround, xHP, yHP, sec, enemyAmount;
+float jumpSpeed, gravity, xSun, ySun, sunSize, ySunSpeed, ySunDeccel, xButt, 
+      yStartButt, buttLength, buttHeight, xCtrlsButt, yCtrlsButt, xStoryButt, 
+      yStoryButt, xSunSpeed, xSunDeccel, r, g, b, xTrunk, yTrunk, widthTrunk, 
+      heightTrunk, xTree, yTree, treeDiameter, xShadow1, yShadow1, xShadow2,
+      yShadow2, xShadow3, yShadow3, q, w, e;
+String screen;
+float xHead, yHead, headWidth, headHeight,
+      xBott, yBott, bottWidth, bottHeight,
+      enemyWidth, enemyHeight;
+boolean faceRight, faceLeft;
+
+void setup() {
+  size(900, 650);
+  enemyAmount = 10;
+  enemyWidth = 50;
+  enemyHeight = 50;
+  
+  enemyLoc = new PVector[enemyAmount];
+  enemySpeed = new PVector[enemyAmount];
+  
+  for (int i = 0; i < enemyLoc.length; i++) {
+    enemyLoc[i] = new PVector(width, yGround);
+    enemySpeed[i] = new PVector(0, 0);
+  }
+  
+  // Buttons
+  buttLength = width/2;
+  buttHeight = 70;
+  xButt = width/2 - buttLength/2;
+  yStartButt = height/2.5;
+
+  
+  yCtrlsButt = yStartButt + buttHeight + 20;
+ 
+  yStoryButt = yStartButt + (buttHeight + 20) * 2;
+  
+  // Background Colours
+  r = 240;
+  g = 248;
+  b = 255;
+  
+  xGround = 0;
+  yGround = 470;
+  
+  // Player
+  bottWidth = 75;
+  bottHeight = 75;
+ 
+  xBott = 200;
+  yBott = yGround - bottHeight/2;
+  
+  faceRight = true;
+
+  
+  // Tree
+  widthTrunk = 50;
+  heightTrunk = 160;
+  xTrunk = width * 0.6;
+  yTrunk = yGround - heightTrunk;
+  treeDiameter = 155;
+  xTree = xTrunk + widthTrunk/2;
+  yTree = yTrunk - treeDiameter/4;
+  
+  //Shadow
+  xShadow1 = xTree;
+  yShadow1 = yTree; 
+  //xShadow2 = x;
+  yShadow2 = yGround; 
+  xShadow3 = xTree; 
+  yShadow3 = yTrunk + heightTrunk;
+  
+  xHP = 50;
+  yHP = 10;
+ 
+ // Sun
+  sunSize = 150;
+  xSun = width + sunSize/2;
+  ySun = height + sunSize;
+  //ySunSpeed = 3;
+  //ySunDeccel = 0.0065;
+  ySunSpeed = 2.7;
+  ySunDeccel = 0.0055;
+  xSunSpeed = 0.9;
+   
+  //jumpSpeed = 0;
+  gravity = 0.5;
+  sec = second();
+  screen = "menu";
+}
+
+
+void menu() {
+  background(255);
+  
+  textSize(72);
+  fill(#fedede);
+  text("MENU", (width/2) - width/8, height/3);
+  
+  // Start Button
+  noStroke();  
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+    fill(255, 156, 239);
+  } else {
+    fill(255, 215, 249);
+  }
+  rect(xButt, yStartButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("START", xButt + buttLength/3.5, yStartButt + 55);
+  
+  // Controls Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yCtrlsButt && mouseY < yCtrlsButt + buttHeight) {
+    fill(249, 155, 211);
+  } else {
+    fill(255, 195, 232);
+  }
+  rect(xButt, yCtrlsButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("CONTROLS", xButt + buttLength/6, yCtrlsButt + 55);
+  
+  // Story Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStoryButt && mouseY < yStoryButt + buttHeight) {
+    fill(255, 62, 178);
+  } else {
+    fill(255, 118, 201);
+  }
+  rect(xButt, yStoryButt, buttLength, buttHeight);
+  
+  textSize(55);
+  fill(255);
+  text("STORY", xButt + buttLength/3.5, yStoryButt + 55);
+}
+
+void mouseReleased() {
+  if(mouseX > xButt && mouseX < xButt + buttLength &&
+     mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+    if (screen.equals("menu")) {
+      screen = "gameScreen";
+    }
+   }  
+}
+
+void tree() {
+  // Tree Trunk
+  fill(127, 102, 23);
+  rect(xTrunk, yTrunk, widthTrunk, heightTrunk);
+  fill(131, 103, 10);
+  rect(xTrunk + widthTrunk/6, yTrunk, widthTrunk*0.65, heightTrunk);
+  
+  // Tree leaves
+  for (int i = 0; i < 6; i++) {
+    fill(79 + i*4, 168 + i*7, 10 + i*11);
+    ellipse(xTree + i*5, yTree - i*7.5, treeDiameter - (i*19), treeDiameter - (i*19));
+  }
+}
+
+void shadow() {
+  fill(255, 250, 230);
+  if (xSun > xTrunk + widthTrunk/2) {
+    triangle(xShadow1, yShadow1, (xTrunk + widthTrunk/2 - w), 
+             yShadow2, xShadow3, yShadow3);
+  } else {
+    triangle(xShadow1, yShadow1, (xTrunk + widthTrunk/2 + w), 
+             yShadow2, xShadow3, yShadow3);
+  }
+}
+
+void player() {
+  // drawing snowman
+  fill(253, 253, 253);
+  ellipse(xBott, yBott, bottWidth, bottHeight);
+  fill(254, 254, 254);
+  ellipse(xHead, yHead, headWidth, headHeight);
+  
+  // snowman's face
+  if (faceRight) {                                      // facing right
+    // its right eye
+    fill(0);
+    ellipse(xHead, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);
+    // its left eye
+    ellipse(xHead + headWidth/3, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);      
+    // smile
+    ellipse(xHead, yHead + headHeight/4,
+            headWidth/20, headHeight/20);
+    ellipse(xHead + headWidth/10, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead + headWidth/5, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead + headWidth/10 * 3, yHead + headHeight/4,
+            headWidth/20, headHeight/20);
+    // carrot nose
+    fill(252, 212, 11);
+    triangle(xHead + headWidth/6, yHead + headHeight/25,
+             xHead + headWidth/2.2, yHead + headHeight/16,
+             xHead + headWidth/6, yHead + headHeight/6);
+  } else if (faceLeft) {                                // facing left
+    // its left eye
+    fill(0);
+    ellipse(xHead, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);
+    // its left eye
+    ellipse(xHead - headWidth/3, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);
+    // smile
+    ellipse(xHead, yHead + headHeight/4,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/10, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/5, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/10 * 3, yHead + headHeight/4,
+                headWidth/20, headHeight/20);
+    // carrot nose
+    fill(252, 212, 11);
+    triangle(xHead - headWidth/6, yHead + headHeight/25,
+             xHead - headWidth/2.2, yHead + headHeight/16,
+             xHead - headWidth/6, yHead + headHeight/6);
+    
+  }
+}
+
+void enemies() {
+  for (int i = 0; i < enemyLoc.length; i ++) {
+    
+  };
+  fill(#FDFD19);
+  rect(enemyLoc[i].x, enemyLoc[i].y, enemyWidth, enemyHeight);
+}
+
+void gameScreen() {
+  
+  // keeping snowman's head relative to the body
+  headWidth = bottHeight * 2/3;
+  headHeight = bottHeight * 2/3;
+  xHead = xBott;
+  yHead = yBott - bottHeight/3 - headHeight/2;
+             
+  yBott -= jumpSpeed;                  // yBott technically has jumpSpeed always subtracting from it
+  jumpSpeed -= gravity;
+  
+  if (yBott > yGround - bottHeight/2) {
+    yBott = yGround - bottHeight/2;
+  }
+  
+  
+
+  if (ySun < (yGround - sunSize/2)) {                  // changing sky colour
+    r -= 0.05;
+    g -= 0.05;
+    b -= 1;
+    xHP = 50 - sec;
+  } else {
+    r += 0.05;
+    g += 0.05;
+    b += 1;
+  }
+  
+  background(r, g, b);
+  noStroke();
+  
+  // Sun
+  fill(255,255,102);
+  ellipse(xSun, ySun, sunSize, sunSize);
+  
+  xSun -= xSunSpeed;
+  ySun -= ySunSpeed;
+  ySunSpeed -= ySunDeccel;
+  
+  // pythagorean theorem?
+  q = yGround - ySun;        // a
+  e = 300;                   // c
+  w = sqrt((e*e) - (q*q));   // b
+  
+  //if (xSun > xTree + treeDiameter/2 && ySun < 150) {
+  //  xSunSpeed = 0.4;
+  //  ySunSpeed = 0.3;
+  //} else if (xSun <= xTree + treeDiameter/2 && xSun > width/3 && ySun < 100) {
+  //  xSunSpeed = 1;
+  //  ySunSpeed = 0;
+  //} else if (xSun < width/3 && ySun < 100) {
+  //  xSunSpeed = -0.4;
+  //  ySunSpeed = -0.3;
+  //}
+  
+  // draws shadow
+  shadow();
+ 
+  // draws tree
+  tree();
+  
+  // Ground
+  fill(246, 246, 246);
+  rect(xGround, yGround, width, height/2);
+  fill(255);
+  rect(xGround, yGround, width, height/15);
+  
+  // draws snowman player
+  player();
+  
+  // draws the kids
+  enemies();
+
+  println("JmpSpe: " + jumpSpeed + "   KeyCde: " + keyCode + 
+          "   HP: " + xHP + "   key: " + key + " q:" + q + 
+          " sec: " + second());
+}
+
+void draw() {
+
+ if (screen.equals("menu")) {
+   menu();
+ } else if (screen.equals("gameScreen")) {
+   gameScreen();
+ }
+  
+}
+
+void keyPressed() {
+   
+  if (keyCode == 39) {                            // move right
+    faceRight = true;
+    faceLeft = false;
+    if (xBott + bottWidth/2 < width) {            // right edge boundary
+      xBott += 6;
+    }
+  } else if (keyCode == 37) {                     // move left
+    faceLeft = true;
+    faceRight = false;
+    if (xBott - bottWidth/2 > 0) {               // left edge boundary
+      xBott -= 6;
+    }
+  }
+  
+  if (keyCode == 32 || keyCode == 38) {           // jump
+    if (yBott == yGround - bottHeight/2) {        // can only jump if on ground
+      jumpSpeed = 9.5;
+    }
+  }
+
+}
