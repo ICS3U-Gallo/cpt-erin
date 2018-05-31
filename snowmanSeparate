@@ -7,6 +7,7 @@ float jumpSpeed, gravity, xSun, ySun, sunSize, ySunSpeed, ySunDeccel, xButt,
 String screen;
 float xHead, yHead, headWidth, headHeight,
       xBott, yBott, bottWidth, bottHeight;
+boolean faceRight, faceLeft;
 
 void setup() {
   size(850, 650);
@@ -20,7 +21,8 @@ void setup() {
  
   xBott = 200;
   yBott = yGround - bottHeight/2;
-
+  
+  faceRight = true;
 
   // Tree
   widthTrunk = 50;
@@ -41,7 +43,7 @@ void setup() {
   
   xHP = 50;
   yHP = 10;
-
+  
   //jumpSpeed = 0;
   gravity = 0.5;
   sec = second();
@@ -74,7 +76,7 @@ void draw() {
   fill(254, 254, 254);
   ellipse(xHead, yHead, headWidth, headHeight);
   
-  if (keyCode == 39) {                      // facing right
+  if (faceRight) {                      // facing right
     // its right eye
     fill(0);
     ellipse(xHead, yHead - headHeight/10, 
@@ -96,7 +98,7 @@ void draw() {
     triangle(xHead + headWidth/6, yHead + headHeight/25,
              xHead + headWidth/2.2, yHead + headHeight/16,
              xHead + headWidth/6, yHead + headHeight/6);
-  } else if (keyCode == 37) {                // facing left
+  } else if (faceLeft) {                // facing left
     // its left eye
     fill(0);
     ellipse(xHead, yHead - headHeight/10, 
@@ -104,34 +106,53 @@ void draw() {
     // its left eye
     ellipse(xHead - headWidth/3, yHead - headHeight/10, 
             headWidth/10, headHeight/10);
+    // smile
+    ellipse(xHead, yHead + headHeight/4,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/10, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/5, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/10 * 3, yHead + headHeight/4,
+                headWidth/20, headHeight/20);
     // carrot nose
     fill(252, 212, 11);
     triangle(xHead - headWidth/6, yHead + headHeight/25,
              xHead - headWidth/2.2, yHead + headHeight/16,
              xHead - headWidth/6, yHead + headHeight/6);
-  } else {                                  // facing front
-    // its right eye
-    fill(0);
-    ellipse(xHead - headWidth/5, yHead - headHeight/10, 
-            headWidth/10, headHeight/10);
-    // its left eye
-    ellipse(xHead + headWidth/5, yHead - headHeight/10, 
-            headWidth/10, headHeight/10);
-   // carrot nose
-    fill(252, 212, 11);
-    triangle(xHead - headWidth/10, yHead + headHeight/25,
-             xHead + headWidth/10, yHead + headHeight/25,
-             xHead, yHead + headHeight/5);
-  }
+    
+  } //else {                                  // facing front
+  //  // its right eye
+  //  fill(0);
+  //  ellipse(xHead - headWidth/5, yHead - headHeight/10, 
+  //          headWidth/10, headHeight/10);
+  //  // its left eye
+  //  ellipse(xHead + headWidth/5, yHead - headHeight/10, 
+  //          headWidth/10, headHeight/10);
+  // // smile
+  // ellipse(xHead - headWidth/20, yHead + headHeight/4,
+  //         headWidth/20, headHeight/20);
+  // ellipse(xHead + headWidth/20, yHead + headHeight/4,
+  //         headWidth/20, headHeight/20); 
+  // // carrot nose
+  //  fill(252, 212, 11);
+  //  triangle(xHead - headWidth/10, yHead + headHeight/25,
+  //           xHead + headWidth/10, yHead + headHeight/25,
+  //           xHead, yHead + headHeight/5);
+  //}
 }
 
 void keyPressed() {
    
   if (keyCode == 39) {
+    faceRight = true;
+    faceLeft = false;
     if (xBott + bottWidth/2 < width) {
       xBott += 5;
     }
   } else if (keyCode == 37) {
+    faceLeft = true;
+    faceRight = false;
     if (xBott - bottWidth/2 > 0) {
       xBott -= 5;
     }
