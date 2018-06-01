@@ -234,10 +234,13 @@ void player() {
 
 void enemies() {
   for (int i = 0; i < enemyLoc.length; i ++) {
+    fill(#FDFD19);
+    rect(enemyLoc[i].x, enemyLoc[i].y, enemyWidth, enemyHeight);   
     
-  };
-  fill(#FDFD19);
-  rect(enemyLoc[i].x, enemyLoc[i].y, enemyWidth, enemyHeight);
+    enemySpeed[i].add(-1, 0);
+    enemyLoc[i].add(enemySpeed[i]);
+  }
+  
 }
 
 void gameScreen() {
