@@ -1,0 +1,339 @@
+int x, y, xGround, yGround, boxSize, sec, enemyAmount, snowballAmount, milliseconds;
+float jumpSpeed, gravity, xSun, ySun, sunSize, ySunSpeed, ySunDeccel, xButt, 
+      yStartButt, buttLength, buttHeight, xCtrlsButt, yCtrlsButt, xStoryButt, 
+      yStoryButt, xSunSpeed, xSunDeccel, r, g, b, xTrunk, yTrunk, widthTrunk, 
+      heightTrunk, xTree, yTree, treeDiameter, xShadow1, yShadow1, xShadow2,
+      yShadow2, xShadow3, yShadow3, q, w, e;
+String screen;
+float xHead, yHead, headWidth, headHeight,
+      xBott, yBott, bottWidth, bottHeight,
+      enemySize, fastEnemySpeed, slowEnemySpeed,
+      xEn, xHP, yHP, lengthHP, heightHP, d,
+      enemyTimer, xBall, yBall, slope, snowballSpeed;
+boolean faceRight, faceLeft, enemyAlive, throwSnow;
+float[] xEnemy, yEnemy, xEnemySpeed, xSnowball, ySnowball, hold1, hold2;
+int timeInterval, timesClicked;
+ArrayList snowball;
+
+void setup() {
+  size(850, 650);
+  
+  timeInterval = 0;
+  milliseconds = 1000;
+  enemyAmount = 10;
+  snowballAmount = 10;
+  enemyAlive = true;
+  enemyTimer = 5 * milliseconds;
+  
+  timesClicked = -1;
+  
+  xGround = 0;
+  yGround = 470;
+  xEn = width;
+  
+  enemySize = 50;
+  fastEnemySpeed = 3;
+  slowEnemySpeed = 1;
+  
+  xEnemy = new float[enemyAmount];
+  yEnemy = new float[enemyAmount];
+  xEnemySpeed = new float[enemyAmount];
+  //enemyTimer = new float[enemyAmount];
+  for (int i = 0; i < xEnemy.length; i ++) {
+    xEnemy[i] = width;
+    yEnemy[i] = yGround - enemySize;
+    xEnemySpeed[i] = 0;
+    //enemyTimer[i] = 5 * milliseconds;
+  }
+  
+  // Player
+  bottWidth = 75;
+  bottHeight = 75;
+ 
+  xBott = 200;
+  yBott = yGround - bottHeight/2;
+  
+  snowballSpeed = 5; 
+  snowball = new ArrayList(snowballAmount);
+  xSnowball = new float[snowballAmount];
+  ySnowball = new float[snowballAmount];
+  hold1 = new float[snowballAmount];
+  hold2 = new float[snowballAmount];
+  for (int i = 0; i < xSnowball.length; i ++) {
+    xSnowball[i] = xBott;
+    ySnowball[i] = yBott;
+  }
+  
+  xBall= xBott;
+  yBall = yBott;
+  
+  faceRight = true;
+  
+  lengthHP = 165;
+  heightHP = 25;
+  xHP = 20;
+  yHP = 10;
+
+  // Tree
+  widthTrunk = 50;
+  heightTrunk = 160;
+  xTrunk = width * 0.6;
+  yTrunk = yGround - heightTrunk;
+  treeDiameter = 155;
+  xTree = xTrunk + widthTrunk/2;
+  yTree = yTrunk - treeDiameter/4;
+  
+  //Shadow
+  xShadow1 = xTree;
+  yShadow1 = yTree; 
+  //xShadow2 = x;
+  yShadow2 = yGround; 
+  xShadow3 = xTree; 
+  yShadow3 = yTrunk + heightTrunk;
+  
+  //jumpSpeed = 0;
+  gravity = 0.5;
+  sec = second();
+  screen = "menu";
+}
+
+void enemies() {
+  //for (int i = 0; i < xEnemy.length/2; i ++) {
+  //  xEnemy[i] -= fastEnemySpeed;  
+  //}
+  //for (int i = 5; i < xEnemy.length; i ++) {
+  //  xEnemy[i]  -= slowEnemySpeed;
+  //}
+  
+ 
+  //for (int i = 0; i < enemyTimer.length; i ++) {
+  //  if (millis() > enemyTimer[i]) {
+  //    xEnemySpeed[0] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 1000) {
+  //    xEnemySpeed[1] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 2000) {
+  //    xEnemySpeed[2] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 3000) {  
+  //    xEnemySpeed[3] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 4000) {  
+  //    xEnemySpeed[4] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 5000) {  
+  //    xEnemySpeed[5] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 6000) {  
+  //    xEnemySpeed[6] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 7000) {  
+  //    xEnemySpeed[7] = 5;
+  //  } 
+  //  if (millis() > enemyTimer[i] + 8000) {  
+  //    xEnemySpeed[8] = 5;
+  //  }
+  //  //timeInterval += 5;
+  //}
+  for (int i = 0; i < xEnemy.length; i ++) {
+    if (millis() > enemyTimer + (i * 2 * milliseconds)) {
+      xEnemySpeed[i] = 5;
+    }
+  }
+  
+  //for (int i = 0; i < enemyTimer.length; i ++) {
+  //  enemyTimer[i] += 1000;
+  //}
+  
+  // What will be in common with all the enemies?
+  for (int i = 0; i < xEnemy.length; i ++) {
+    xEnemy[i] -= xEnemySpeed[i];
+    
+    //if (millis() > enemyTimer[i] + timeInterval) {
+    //  xEnemySpeed[i] = 5;
+    //}
+    
+    if (i % 2 == 0) {              // evens (and zero) are red
+      fill(255, 80, 90);
+    } else {
+      fill(20, 240, 240);         // odds are blue
+    }
+    rect(xEnemy[i], yEnemy[i], enemySize, enemySize);
+    
+    d = dist(xEnemy[i], yEnemy[i], xBott, yBott);
+    if (d < bottWidth) {
+      if (lengthHP > 0) {
+        lengthHP -= 0.5;
+      }
+    }
+  }
+}
+
+void draw() {
+  headWidth = bottHeight * 2/3;
+  headHeight = bottHeight * 2/3;
+  xHead = xBott;
+  yHead = yBott - bottHeight/3 - headHeight/2;
+  
+  yBott -= jumpSpeed;
+  jumpSpeed -= gravity;
+  
+  if (yBott > yGround - bottHeight/2) {
+    yBott = yGround - bottHeight/2;
+  }
+  
+  background(240, 230, 230);
+  noStroke();
+  
+  // ground
+  fill(30, 30, 90);
+  rect(xGround, yGround, width, height/2);
+  
+  if (enemyAlive) {
+    enemies();
+  }
+  
+  //HP
+  fill(173,255,47);
+  rect(xHP, yHP, lengthHP, heightHP);
+  
+  // player/snowman
+  fill(253, 253, 253);
+  ellipse(xBott, yBott, bottWidth, bottHeight);
+  fill(254, 254, 254);
+  ellipse(xHead, yHead, headWidth, headHeight);
+  
+  if (faceRight) {                      // facing right
+    // its right eye
+    fill(0);
+    ellipse(xHead, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);
+    // its left eye
+    ellipse(xHead + headWidth/3, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);      
+    // smile
+    ellipse(xHead, yHead + headHeight/4,
+            headWidth/20, headHeight/20);
+    ellipse(xHead + headWidth/10, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead + headWidth/5, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead + headWidth/10 * 3, yHead + headHeight/4,
+            headWidth/20, headHeight/20);
+    // carrot nose
+    fill(252, 212, 11);
+    triangle(xHead + headWidth/6, yHead + headHeight/25,
+             xHead + headWidth/2.2, yHead + headHeight/16,
+             xHead + headWidth/6, yHead + headHeight/6);
+  } else if (faceLeft) {                // facing left
+    // its left eye
+    fill(0);
+    ellipse(xHead, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);
+    // its left eye
+    ellipse(xHead - headWidth/3, yHead - headHeight/10, 
+            headWidth/10, headHeight/10);
+    // smile
+    ellipse(xHead, yHead + headHeight/4,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/10, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/5, yHead + headHeight/3.5,
+            headWidth/20, headHeight/20);
+    ellipse(xHead - headWidth/10 * 3, yHead + headHeight/4,
+                headWidth/20, headHeight/20);
+    // carrot nose
+    fill(252, 212, 11);
+    triangle(xHead - headWidth/6, yHead + headHeight/25,
+             xHead - headWidth/2.2, yHead + headHeight/16,
+             xHead - headWidth/6, yHead + headHeight/6);
+    
+  } //else {                                  // facing front
+  //  // its right eye
+  //  fill(0);
+  //  ellipse(xHead - headWidth/5, yHead - headHeight/10, 
+  //          headWidth/10, headHeight/10);
+  //  // its left eye
+  //  ellipse(xHead + headWidth/5, yHead - headHeight/10, 
+  //          headWidth/10, headHeight/10);
+  // // smile
+  // ellipse(xHead - headWidth/20, yHead + headHeight/4,
+  //         headWidth/20, headHeight/20);
+  // ellipse(xHead + headWidth/20, yHead + headHeight/4,
+  //         headWidth/20, headHeight/20); 
+  // // carrot nose
+  //  fill(252, 212, 11);
+  //  triangle(xHead - headWidth/10, yHead + headHeight/25,
+  //           xHead + headWidth/10, yHead + headHeight/25,
+  //           xHead, yHead + headHeight/5);
+  //}
+  
+  for (int i = 0; i < xSnowball.length; i ++) {
+    fill(0);
+    ellipse(xSnowball[i], ySnowball[i], 25, 25);
+    xSnowball[i] += hold1[i];
+    ySnowball[i] += hold2[i];
+    
+    if (timesClicked == i) {
+      hold1[i] = snowballSpeed;
+      hold2[i] = slope * snowballSpeed;
+    }
+  }
+  
+  
+  
+  //fill(0);
+  //ellipse(xBall, yBall, 25, 25);
+  
+  
+  //if (throwSnow) {
+  //  xBall += 1;
+  //  yBall += slope; 
+  //}
+  
+  
+  println("  millis: " + millis() + 
+          " dist: " + d +
+          " bot: " + bottWidth + " m: " + slope +
+          "   arra: " + snowball + " timesclicked: " + timesClicked);
+}
+
+void keyPressed() {
+   
+  if (keyCode == 39) {
+    faceRight = true;
+    faceLeft = false;
+    if (xBott + bottWidth/2 < width) {
+      xBott += 5;
+    }
+  } else if (keyCode == 37) {
+    faceLeft = true;
+    faceRight = false;
+    if (xBott - bottWidth/2 > 0) {
+      xBott -= 5;
+    }
+  }
+  
+  if (keyCode == 32 || keyCode == 38) {
+    if (yBott == yGround - bottHeight/2) {
+      jumpSpeed = 11.5;
+      gravity = 0.5;
+    }
+  }
+  
+  if (keyCode == 40) {
+    gravity = 1;
+  }
+
+}
+
+void mouseClicked() {
+  throwSnow = true;
+  slope = (mouseY - yBott) / (mouseX - xBott);
+  //for (int i = 0; i < xSnowball.length; i ++) {
+  //  xSnowball[i] = xBott;
+  //  ySnowball[i] = yBott; 
+  //}
+  timesClicked += 1;
+}
