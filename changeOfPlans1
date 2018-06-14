@@ -24,6 +24,7 @@ float xHead, yHead, headWidth, headHeight,
       xSnowballDisplay, ySnowballDisplay, xSnowPile, ySnowPile;
 boolean faceRight, faceLeft;
 float[] xEnemy, yEnemy, xEnemySpeed;
+boolean[] enemyAlive;
 
 
 void setup() {
@@ -61,8 +62,8 @@ void setup() {
   yGarRoof4 = yGarage;
   
   // Player
-  bottWidth = 75;
-  bottHeight = 75;
+  bottWidth = 70;
+  bottHeight = 70;
  
   xBott = width * 0.4;
   yBott = yGround - bottHeight/2;
@@ -83,11 +84,13 @@ void setup() {
   xEnemy = new float[enemyAmount];
   yEnemy = new float[enemyAmount];
   xEnemySpeed = new float[enemyAmount];
+  enemyAlive = new boolean[enemyAmount];
 
   for (int i = 0; i < xEnemy.length; i ++) {
     xEnemy[i] = width;
     yEnemy[i] = yGround - enemyHeight;
     xEnemySpeed[i] = 0;
+    enemyAlive[i] = true;
   }
   
   // HP bar top left corner
@@ -119,8 +122,8 @@ void setup() {
   neighbourhoodAlpha = 125;
   
   // Tree
-  trunkWidth = 50;
-  trunkHeight = 160;
+  trunkWidth = 65;
+  trunkHeight = 175;
   xTrunk = width * 0.6;
   yTrunk = yGround - trunkHeight;
   treeDiameter = 155;
@@ -241,6 +244,7 @@ void sky() {
 
 void sun() {
   // Sun
+  
   fill(255,255,102);
   ellipse(xSun, ySun, sunSize, sunSize);
   
@@ -388,8 +392,21 @@ void player() {
 }
 
 void snowball() {
+  // magic flying snowball that you can control
   fill(255);
   ellipse(xSnowball, ySnowball, snowballDiameter, snowballDiameter);
+  
+  for (int i = 0; i < xEnemy.length; i ++) {            // if snowball touches the enemy...
+    if (xSnowball + snowballDiameter/2 > xEnemy[i] && 
+        xSnowball - snowballDiameter/2 < xEnemy[i] + enemyWidth &&
+        ySnowball + snowballDiameter/2 > yEnemy[i] && 
+        ySnowball + snowballDiameter/2 < yEnemy[i] + enemyHeight) {
+      textSize(30);
+      fill(255);
+      text("OuCH", width/2, 100);
+      enemyAlive[i] = false;                            // enemy will die
+    }
+  }
 
 }
 
@@ -405,19 +422,23 @@ void snowPile() {
 void enemies() {
   // what do the enemies have in common?
   for (int i = 0; i < xEnemy.length; i ++) {
-    if (millis() > enemyTimer + (i * 2 * milliseconds)) {
-      xEnemySpeed[i] = 5;
-    }
-    xEnemy[i] -= xEnemySpeed[i];
-    
-    fill(255, 80, 90);
-    rect(xEnemy[i], yEnemy[i], enemyWidth, enemyHeight); 
-    
-    // DAMAGE
-    d = dist(xEnemy[i], yEnemy[i], xBott, yBott);
-    if (d < bottWidth) {
-      if (lengthHP >= 0) {
-        lengthHP -= 0.5;
+    if (enemyAlive[i]) {
+      if (millis() > enemyTimer + (i * 2 * milliseconds)) {
+        xEnemySpeed[i] = 5;
+      }
+      xEnemy[i] -= xEnemySpeed[i];
+      
+      
+      fill(255, 80, 90);
+      rect(xEnemy[i], yEnemy[i], enemyWidth, enemyHeight); 
+      
+      
+      // DAMAGE
+      d = dist(xEnemy[i], yEnemy[i], xBott, yBott);
+      if (d < bottWidth) {
+        if (lengthHP >= 0) {
+          lengthHP -= 0.5;
+        }
       }
     }
   }
@@ -448,12 +469,6 @@ void gameScreen() {
   rect(xHP, yHP, 165, heightHP);
   fill(155, 255, 9);
   rect(xHP, yHP, lengthHP, heightHP);
-  
-  // Ammo Amount shown top left corner
-  fill(255, 254, 254);
-  ellipse(xSnowballDisplay, ySnowballDisplay, snowballDiameter, snowballDiameter);
-  textSize(30);
-  text("x " + snowballsLeft, xSnowballDisplay + 25, ySnowballDisplay + 10);
   
   sun();
 
