@@ -22,7 +22,7 @@ float xHead, yHead, headWidth, headHeight,
   enemyWidth, enemyHeight, timeInterval, 
   rightEnemyTimer, leftEnemyTimer, xHP, yHP, lengthHP, heightHP, 
   snowballSize, snowballSpeed, slope, dRight, dLeft;
-boolean faceRight, faceLeft, takingDmg, isDay;
+boolean faceRight, faceLeft, takingDmg, isDay, inShade;
 float[] xRightEnemy, yRightEnemy, xRightEnemySpeed, 
   xLeftEnemy, yLeftEnemy, xLeftEnemySpeed;
 boolean[] rightEnemyAlive, leftEnemyAlive;
@@ -82,6 +82,7 @@ void setup() {
   ySnowball = yBody;
 
   isDay = false;
+  inShade = false;
   faceRight = true;
   takingDmg = false;
 
@@ -329,14 +330,27 @@ void shadow() {
   
   // Shadow is just black with lowered opacity
   fill(0, 0, 0, 190);         
-  if (xSun > xTrunk + trunkWidth/2) {                  // if sun is right of tree, shadow points towards left
-    triangle(xShadow1, yShadow1, (xTrunk + trunkWidth/2 - w), 
+  if (xSun > xTrunk + trunkWidth/2) {                                             // if sun is right of tree, shadow points towards left
+    triangle(xShadow1, yShadow1, ((xTrunk + trunkWidth / 2) - w), 
       yShadow2, xShadow3, yShadow3);
-  } else {                                             // if sun is left of tree, shadow points towards right
-    triangle(xShadow1, yShadow1, (xTrunk + trunkWidth/2 + w), 
+    if (xBody > (xTrunk + trunkWidth / 2) - w && xBody < xTrunk + trunkWidth) {   // in triangle shadow or behind tree trunk
+      inShade = true;
+    } else if (xBody > xTrunk && xBody < xTrunk + trunkWidth) {                   // just behind tree trunk (when triangle shadow is gone)
+      inShade = true;
+    } else {
+      inShade = false;
+    }
+  } else {                                                                        // if sun is left of tree, shadow points towards right
+    triangle(xShadow1, yShadow1, (xTrunk + trunkWidth/2 + w),  
       yShadow2, xShadow3, yShadow3);
-  }
-  
+    if (xBody < (xTrunk + xTrunk / 2) + w && xBody > xTrunk) {                    // in triangle shadow or behind tree trunk
+      inShade = true;
+    } else if (xBody > xTrunk && xBody < xTrunk + trunkWidth) {                   // just behind tree trunk (when triangle shadow is gone)
+      inShade = true;
+    } else {
+      inShade = false;
+    }
+  }   
 }
 
 void neighbourhood() {
@@ -398,9 +412,17 @@ void tree() {
 
 void player() {
   // drawing snowman
-  fill(253, 253, 253);
+  if (inShade) {
+    fill(190, 190, 190);              // snowman's body turns darker b/c in shadow 
+  } else {
+    fill(250, 250, 250);              // normal colour of snowman's body
+  }
   ellipse(xBody, yBody, bodyWidth, bodyHeight);
-  fill(254, 254, 254);
+  if (inShade) {
+    fill(194, 194, 194);              // snowman's head turns darker b/c in shadow
+  } else {
+    fill(254, 254, 254);              // normal colour of snowman's head
+  }
   ellipse(xHead, yHead, headWidth, headHeight);
 
   // snowman's face
@@ -413,8 +435,8 @@ void player() {
     ellipse(xHead + headWidth/3, yHead - headHeight/10, 
       headWidth/10, headHeight/10);      
 
-    if (isDay) {
-      // frown?
+    if (isDay) {                        // Snowman becomes upset if the sun is out :( poor guy
+      // frown
       ellipse(xHead, yHead + headHeight/3.5, 
         headWidth/20, headHeight/20);
       ellipse(xHead + headWidth/10, yHead + headHeight/4, 
@@ -448,6 +470,7 @@ void player() {
     ellipse(xHead - headWidth/3, yHead - headHeight/10, 
       headWidth/10, headHeight/10);
     if (isDay) {
+      // frown                                          // Snowman ain't a fan of the sun :(
       ellipse(xHead, yHead + headHeight/3.5, 
         headWidth/20, headHeight/20);
       ellipse(xHead - headWidth/10, yHead + headHeight/4, 
@@ -476,7 +499,7 @@ void player() {
 }
 
 void snowball() {
-  // magic flying snowball that you can control
+  // Magic flying snowball that you can control
   fill(255);
   ellipse(xSnowball, ySnowball, snowballSize, snowballSize);
 
@@ -489,7 +512,7 @@ void snowball() {
       //textSize(30);
       //fill(255);
       //text("OuCH", width/2, 100);
-      rightEnemyAlive[i] = false;                            // enemy will die
+      rightEnemyAlive[i] = false;                            // kids will die
     }
   }
 
@@ -778,7 +801,7 @@ void gameScreen() {
 
 
   println("KeyCde:" + keyCode + " hurt? " + takingDmg + " ySun:" + ySun + 
-          " isDay?" + isDay);
+          " isDay?" + isDay + " inShade?" + inShade);
 }
 
 void gameOver() {
