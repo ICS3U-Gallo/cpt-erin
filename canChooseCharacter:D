@@ -135,7 +135,7 @@ void setup() {
   yStoryButt = yStartButt + (buttHeight + 20) * 2;
   
   xBowtie = width*0.18;
-  yBowtie = height *0.2;
+  yBowtie = height *0.26;
   bowtieButtLength = width/4;
   bowtieButtHeight = height/1.5;
   
@@ -189,9 +189,9 @@ void menu() {
 
   textSize(120);
   fill(255, 166, 43);
-  text("SUNBURNED", (width/2) - width/3.1, height/3);
+  text("SUNBURNED", (width/2) - width/3, height/3);
   fill(255, 82, 43);
-  text("SUNBURNED", (width/2) - width/3.19, height/3);
+  text("SUNBURNED", (width/2) - width/3.09, height/3);
   textSize(19);
   fill(0);
   text("~ A Game About Friendship & Safety ~", (width/2) - width/6, height*0.39);
@@ -240,22 +240,32 @@ void menu() {
 
 void controls() {
   background(200, 246, 130);
+  
+  textSize(19);
+  fill(0);
+  text("[Backspace] to esc", width*0.01, height*0.035);
+  
   textSize(25);
   fill(0);
   text("[w] or [space] to jump", 120, 100);
   text("[a]  [s]  [d]", 90, 135);
   text("move left        move right", 80, 200);
   text("fall down quickly", 150, 215);
+  text("Hide behind the tree and its shadows to avoid sunburning!", 150, 245);
+  text("(don't worry if you're not EXACTLY within the shadow--you'll still be shielded. Small details)", 150, 265);
 }
 
 void story() {
   background(22, 146, 170);
+  textSize(19);
+  fill(0);
+  text("[Backspace] to esc", width*0.01, height*0.035);
   
   textSize(25);
   fill(255);
-  text("Welcome to this world, Snowman.", width*0.02, height*0.05);
-  text("  You were created by the", width*0.02, height*0.1);
-  text("neighbourhood children, just like Frosty.", width*0.02, height*0.15);
+  text("Welcome to this world, Snowman.", width*0.02, height*0.09);
+  text("  You were created by the", width*0.02, height*0.14);
+  text("neighbourhood children, just like Frosty.", width*0.02, height*0.19);
   text("But unlike Frosty, you don't have a top hat to shield you from the sun. Oh no! UV rays!", width*0.02, height*0.4);
   text("You look for your hat but run into the neighbourhood kids instead.", width*0.02, height*0.5);
   text("All kids adore snowmen--a little too much for your taste, however.", width*0.02, height*0.6);
@@ -266,8 +276,11 @@ void story() {
 void chooseCharacter() {
   background(209, 240, 255);
   fill(0);
-  textSize(60);
-  text("CHOOSE YOUR CHARACTER", width*0.12, height*0.12);
+  textSize(19);
+  text("[Backspace] to esc", width*0.01, height*0.035);
+  fill(0);
+  textSize(71);
+  text("CHOOSE YOUR CHARACTER", width*0.07, height*0.18);
 
   if (mouseX > xBowtie && mouseX < xBowtie + bowtieButtLength &&                                      // if mouse is hovering on the left button...
       mouseY > yBowtie && mouseY < yBowtie + bowtieButtHeight) {
@@ -416,9 +429,9 @@ void sky() {
   background(r, g, b);
 
   // too many loops? lags game a lot
-  for (int i = 0; i < 10; i ++) {
+  for (int i = 0; i < 9; i ++) {
     fill(r + (i * 1.5), g + (i), b + (i * 5));
-    ellipse(width/2, height/1.25, width*1.75 - (i * 45), (height * 1.75) - (i * 45));
+    ellipse(width/2, height/1.25, width*1.75 - (i * 65), (height * 1.75) - (i * 65));
   }
 }
 
@@ -874,7 +887,11 @@ void sunDamage() {
     lengthHP -= 0.2;                                       // #SUNBURNT
     textSize(25);
     fill(255, 0, 0);
-    text("hot!", xHead - headWidth/3, yHead - headHeight/2);
+    if (pickedBow) {
+      text("hot!", xHead - headWidth/2, yHead - headHeight/1.27);
+    } else {
+      text("hot!", xHead - headWidth/2, yHead - headHeight/1.6);
+    }
     text("MELTING", xHP, yHP);
   }
 }
@@ -998,7 +1015,7 @@ void draw() {
 }
 
 void keyPressed() {
-  if (screen.equals("controls") || screen.equals("story")) {      // [backspace] to esc from control and story screen
+  if (screen.equals("controls") || screen.equals("story") || screen.equals("chooseCharacter")) {      // [backspace] to esc from control and story screen
     if (keyCode == 8) {
       screen = "menu";
     }
