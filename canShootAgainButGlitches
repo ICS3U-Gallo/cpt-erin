@@ -1,0 +1,1138 @@
+// TESTING
+// not very organized
+
+PVector[] snowflakes;
+int xGround, yGround, sec, rightEnemyAmount, leftEnemyAmount, milliseconds, 
+    neighbourhoodAlpha, timesClicked;
+float jumpSpeed, gravity, xSun, ySun, sunSize, ySunSpeed, ySunDeccel, xButt, 
+      yStartButt, buttLength, buttHeight, xCtrlsButt, yCtrlsButt, xStoryButt, 
+      yStoryButt, xSunSpeed, xSunDeccel, r, g, b, xTrunk, yTrunk, trunkWidth, 
+      trunkHeight, xTree, yTree, treeDiameter, xShadow1, yShadow1, xShadow2, 
+      yShadow2, xShadow3, yShadow3, q, w, e, test;
+String screen;
+float xHouse, yHouse, houseWidth, houseHeight, 
+      xRoof1, yRoof1, xRoof2, yRoof2, 
+      xRoof3, yRoof3, xGarage, yGarage, 
+      garageWidth, garageHeight, xGarRoof1, yGarRoof1, 
+      xGarRoof2, yGarRoof2, xGarRoof3, yGarRoof3, 
+      xGarRoof4, yGarRoof4, ySidewalk, xSnowball, ySnowball, 
+      snowflakeSize, xBowtie, yBowtie, bowtieButtLength, bowtieButtHeight;
+float xHead, yHead, headWidth, headHeight, 
+      xBody, yBody, bodyWidth, bodyHeight, 
+      enemyWidth, enemyHeight, timeInterval, 
+      rightEnemyTimer, leftEnemyTimer, sunTimer, xHP, yHP, lengthHP, heightHP, 
+      snowballSize, snowballSpeed, slope, slopeWhenClicked, dRight, dLeft, 
+      bowtieSmileCorner, bowtieSmileMid, smileCorner, smileMid;
+boolean faceRight, takingDmg, isDay, isAlmostDay, inShade, 
+        chooseLeft, chooseRight, pickedBowtie, resetSun, snowThrown,
+        canClick;
+float[] xRightEnemy, yRightEnemy, xRightEnemySpeed, 
+        xLeftEnemy, yLeftEnemy, xLeftEnemySpeed;
+boolean[] rightEnemyAlive, leftEnemyAlive;
+
+
+void setup() {
+  size(1100, 650);
+  
+  timesClicked = -1; // start @ -1 because when you choose character that counts as a click
+  
+  snowflakeSize = 10;
+  snowflakes = new PVector[19];
+  for (int i = 0; i < snowflakes.length; i ++) {
+    float x = random(width);
+    float y = random(-snowflakeSize, height * 0.95);
+    snowflakes[i] = new PVector(x, y);
+  }
+
+  xGround = 0;
+  yGround = 485;
+
+  ySidewalk = yGround - 30;
+
+  houseWidth = width/4;
+  houseHeight = height/4;
+  xHouse = width/4.5;
+  yHouse = ySidewalk - houseHeight;
+
+  xRoof1 = xHouse;
+  yRoof1 = yHouse;
+  xRoof2 = xHouse + houseWidth/2;
+  yRoof2 = yHouse - (houseHeight * 0.5);
+  xRoof3 = xHouse + houseWidth;
+  yRoof3 = yHouse;
+
+  garageWidth = xHouse * 0.75;
+  garageHeight = yHouse * 0.5;
+  xGarage = xHouse - garageWidth;
+  yGarage = yGround - garageHeight;
+
+  xGarRoof1 = xGarage;
+  yGarRoof1 = yGarage;
+  xGarRoof2 = xGarage + (garageWidth * 0.2);
+  yGarRoof2 = yGarage - (garageHeight * 0.17);
+  xGarRoof3 = xGarage + (garageWidth * 0.8);
+  yGarRoof3 = yGarRoof2;
+  xGarRoof4 = xGarage + garageWidth; 
+  yGarRoof4 = yGarage;
+
+  // Player
+  bodyWidth = 72;
+  bodyHeight = 72;
+
+  xBody = width * 0.4;
+  yBody = yGround - bodyHeight/2;
+
+  snowballSize = 30;
+  xSnowball = xBody;
+  ySnowball = yBody;
+  
+  isDay = false;
+  inShade = false;
+  faceRight = true;
+  takingDmg = false;
+
+  rightEnemyAmount = 40;
+  enemyWidth = 60;
+  enemyHeight = 60;
+  milliseconds = 1000;
+
+  rightEnemyTimer = 5 * milliseconds;
+  xRightEnemy = new float[rightEnemyAmount];
+  yRightEnemy = new float[rightEnemyAmount];
+  xRightEnemySpeed = new float[rightEnemyAmount];
+  rightEnemyAlive = new boolean[rightEnemyAmount];
+
+  for (int i = 0; i < xRightEnemy.length; i ++) {
+    xRightEnemy[i] = width + enemyWidth;              // start the enemies coming from the right off-screen beyond canvas width
+    yRightEnemy[i] = yGround - enemyHeight;
+    xRightEnemySpeed[i] = 0;
+    rightEnemyAlive[i] = true;
+  }
+
+  leftEnemyTimer = 20 * milliseconds;
+  leftEnemyAmount = 45;
+  xLeftEnemy = new float[leftEnemyAmount];
+  yLeftEnemy = new float[leftEnemyAmount];
+  xLeftEnemySpeed = new float[leftEnemyAmount];
+  leftEnemyAlive = new boolean[leftEnemyAmount];
+
+  for (int i = 0; i < xLeftEnemy.length; i ++) {
+    xLeftEnemy[i] = 0 - enemyWidth * 2;
+    yLeftEnemy[i] = yGround - enemyHeight;
+    xLeftEnemySpeed[i] = 0;
+    leftEnemyAlive[i] = true;
+  }
+
+  // HP bar top left corner
+  lengthHP = 165;
+  heightHP = 25;
+  xHP = 20;
+  yHP = 25;
+
+  // Buttons
+  buttLength = width/2.15;
+  buttHeight = 70;
+  xButt = width/2 - buttLength/2;
+  yStartButt = height*0.45;
+
+  yCtrlsButt = yStartButt + buttHeight + 20;
+
+  yStoryButt = yStartButt + (buttHeight + 20) * 2;
+  
+  xBowtie = width*0.18;
+  yBowtie = height *0.23;
+  bowtieButtLength = width/4;
+  bowtieButtHeight = height/1.5;
+  
+  // Background Colours
+  r = 2;
+  g = 1;
+  b = 17;
+
+  neighbourhoodAlpha = 125;
+
+  // Tree
+  trunkWidth = 65;
+  trunkHeight = 175;
+  xTrunk = width*0.6;
+  yTrunk = yGround - trunkHeight;
+  treeDiameter = 155;
+  xTree = xTrunk + trunkWidth/2;
+  yTree = yTrunk - treeDiameter/4;
+
+  //Shadow
+  xShadow1 = xTree;
+  yShadow1 = yTree; 
+  //xShadow2 = x;
+  yShadow2 = yGround; 
+  xShadow3 = xTree; 
+  yShadow3 = yTrunk + trunkHeight;
+
+
+  // Sun
+  sunSize = 150;
+  xSun = width + sunSize/2;
+  ySun = height + sunSize;
+  ySunSpeed = 2.7;
+  ySunDeccel = 0.0055;
+  xSunSpeed = 0.9;
+  sunTimer = 25 * milliseconds;
+
+  jumpSpeed = 0;
+  gravity = 0.5;
+  sec = second();
+  screen = "menu";
+}
+
+
+void menu() {
+  background(209, 240, 255);
+
+  noStroke();
+  snowfall();
+
+  textSize(120);
+  fill(255, 166, 43);
+  text("SUNBURNED", (width/2) - width/3, height/3);
+  fill(255, 82, 43);
+  text("SUNBURNED", (width/2) - width/3.09, height/3);
+  textSize(19);
+  fill(0);
+  text("~ A Game About Skin Protection ~", (width/2) - width/6.3, height*0.39);
+  
+  textSize(72);
+  // Start Button
+  noStroke();  
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+    mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+    fill(31, 181, 253);
+  } else {
+    fill(135, 216, 255);
+  }
+  rect(xButt, yStartButt, buttLength, buttHeight);
+
+  textSize(55);
+  fill(23, 54, 125);
+  text("START", xButt + buttLength/3.1, yStartButt + 55);
+
+  // Controls Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+    mouseY > yCtrlsButt && mouseY < yCtrlsButt + buttHeight) {
+    fill(249, 155, 211);
+  } else {
+    fill(255, 195, 232);
+  }
+  rect(xButt, yCtrlsButt, buttLength, buttHeight);
+
+  textSize(55);
+  fill(201, 36, 135);
+  text("CONTROLS", xButt + buttLength/5.6, yCtrlsButt + 55);
+
+  // Story Button
+  if (mouseX > xButt && mouseX < xButt + buttLength &&
+    mouseY > yStoryButt && mouseY < yStoryButt + buttHeight) {
+    fill(105, 141, 224);
+  } else {
+    fill(161, 189, 255);
+  }
+  rect(xButt, yStoryButt, buttLength, buttHeight);
+
+  textSize(55);
+  fill(76, 7, 168);
+  text("STORY", xButt + buttLength/3.1, yStoryButt + 55);
+}
+
+void controls() {
+  background(200, 246, 130);
+  
+  textSize(19);
+  fill(0);
+  text("[Backspace] to esc", width*0.01, height*0.035);
+  
+  textSize(25);
+  fill(0);
+  text("to jump", 325, 73);
+  textSize(40);
+  text("     [w]", 91, 110);
+  text("[a]  [s]  [d]      [space]", 90, 170);
+  textSize(25);
+  text("move left              move right", 21, 220);
+  text("fall down quickly", 94, 270);
+  
+  stroke(0);
+  strokeWeight(3);
+  // "jump" lines 
+  line(335, 86, 240, 90);         // [w]
+  line(335, 86, 400, 130);        // [space]
+  // "move left" line
+  line(57, 190, 83, 165);         // [a]
+  // "move right" line
+  line(320, 190, 295, 165);       // [d]
+  // "move down quickly" line
+  line(188.5, 194, 188.5, 240);   // [s]
+  
+  text("Hide behind the tree and its shadows to avoid sunburning!", 40, 500);
+  text("(don't worry if you're not EXACTLY within the shadow--", 40, 535);
+  text("you'll still be shielded. Small details)", 40, 570);
+  text("You'll have an HP gauge in the top left", width*0.52, 90);
+  text("corner of your screen.", width*0.52, 125);
+  text("Avoid being touched by the kids or you'll", width*0.52, 160);
+  text("lose HP!", width*0.52, 195);
+}
+
+void story() {
+  background(22, 146, 170);
+  textSize(19);
+  fill(0);
+  text("[Backspace] to esc", width*0.01, height*0.035);
+  
+  textSize(25);
+  fill(255);
+  text("Welcome to this world, Snowman.", width*0.02, height*0.09);
+  text("  You were created by the", width*0.02, height*0.14);
+  text("neighbourhood children, just like Frosty.", width*0.02, height*0.19);
+  text("But unlike Frosty, you don't have a top hat to shield you from the sun. Oh no! UV rays!", width*0.02, height*0.4);
+  text("You look for your hat but run into the neighbourhood kids instead.", width*0.02, height*0.5);
+  text("All kids adore snowmen--a little too much for your taste, however.", width*0.02, height*0.6);
+  text("You fight off the kids but the Sun is your enemy too!", width*0.02, height*0.7);
+  text("Survive the onslaught of children by using your one singular snowball and hide in the shade during the day! Maybe one day you'll find your hat?", width*0.1, height*0.8);
+}
+
+void chooseCharacter() {
+  background(209, 240, 255);
+  snowfall();
+  
+  fill(0);
+  textSize(19);
+  text("[Backspace] to esc", width*0.01, height*0.035);
+  fill(0);
+  textSize(71);
+  text("CHOOSE YOUR CHARACTER", width*0.07, height*0.18);
+  textSize(30);
+  text("Bowtie", xBowtie + bowtieButtLength/3.1, yBowtie + bowtieButtHeight*1.09);
+  text("No-tie", xBowtie + bowtieButtLength*1.86, yBowtie + bowtieButtHeight*1.09);
+
+  if (mouseX > xBowtie && mouseX < xBowtie + bowtieButtLength &&                                      // if mouse is hovering on the left button...
+      mouseY > yBowtie && mouseY < yBowtie + bowtieButtHeight) {
+    chooseLeft = true;
+    chooseRight = false;
+    
+  } else if (mouseX > xBowtie + bowtieButtLength*1.5 && mouseX < xBowtie + bowtieButtLength*2.5 &&    // if mouse is hovering on the right button...
+             mouseY > yBowtie && mouseY < yBowtie + bowtieButtHeight) {
+    chooseRight = true;
+    chooseLeft = false;
+  } else {
+    chooseRight = false;
+    chooseLeft = false;
+  }
+  
+  if (chooseLeft) {
+    fill(72, 22, 189);                                                                                // left button gets darker when mouse hovers over it
+  } else {
+    fill(124, 148, 255);                                                                              // left button's normal light purple colour
+  }
+  rect(xBowtie, yBowtie, bowtieButtLength, bowtieButtHeight);                                         // draw left button
+  
+  if (chooseRight) {
+    fill(72, 22, 189);                                                                                // right button gets darker when mouse hovers over it
+  } else {
+    fill(124, 148, 255);                                                                              // right button's normal light purple colour
+  }
+  rect(xBowtie + bowtieButtLength*1.5, yBowtie, bowtieButtLength, bowtieButtHeight);                  // draw right button
+ 
+  // Bowtie snowman
+  // bowtie                                                                                           
+  fill(255, 155, 220);
+  stroke(255, 71, 190);
+  strokeWeight(3);
+  ellipse(xBowtie + bowtieButtLength/2 + 4, yBowtie + bowtieButtHeight/1.95 - 36, 18, 25);
+  ellipse(xBowtie + bowtieButtLength/2 - 9, yBowtie + bowtieButtHeight/1.95 - 36, 15, 15);
+  ellipse(xBowtie + bowtieButtLength/2 - 23, yBowtie + bowtieButtHeight/1.95 - 34, 19, 25);
+  noStroke();
+  // body
+  fill(250, 250, 250);
+  ellipse(xBowtie + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.5, 102, 102);
+  // head
+  fill(254, 254, 254);
+  ellipse(xBowtie + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.95, 68, 68);
+  // its right eye
+  fill(0);
+  ellipse(xBowtie + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.95 - 6.8, 6.8, 6.8);
+  // its left eye
+  ellipse(xBowtie + bowtieButtLength/2 + 22.6, yBowtie + bowtieButtHeight/1.95 - 6.8, 6.8, 6.8);
+  if (chooseLeft) {                                                                                   // Bowtie snowman will frown when chosen :( no one likes being chosen to get beat up by enemies
+    bowtieSmileCorner = 20; 
+    bowtieSmileMid = 17;
+    smileCorner = 17;
+    smileMid = 20;
+  } else if (chooseRight) {                                                                           // No-tie snowman will frown when chosen :( 
+    bowtieSmileCorner = 17; 
+    bowtieSmileMid = 20;
+    smileCorner = 20;
+    smileMid = 17;
+  } else {                                                                                            // Bowtie and No-tie snowman will both smile when mouse is not hovering over either of them :)
+    bowtieSmileCorner = 17; 
+    bowtieSmileMid = 20;
+    smileCorner = 17;
+    smileMid = 20;
+  }
+  // smile
+  ellipse(xBowtie + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.95 + bowtieSmileCorner, 3.4, 3.4);
+  ellipse(xBowtie + bowtieButtLength/2 + 6.8, yBowtie + bowtieButtHeight/1.95 + bowtieSmileMid, 3.4, 3.4);
+  ellipse(xBowtie + bowtieButtLength/2 + 13.6, yBowtie + bowtieButtHeight/1.95 + bowtieSmileMid, 3.4, 3.4);
+  ellipse(xBowtie + bowtieButtLength/2 + 20.4, yBowtie + bowtieButtHeight/1.95 + bowtieSmileCorner, 3.4, 3.4);
+  // carrot nose
+  fill(252, 212, 11);
+  triangle(xBowtie + bowtieButtLength/2 + 11.3, yBowtie + bowtieButtHeight/1.95 + 2.72,
+           xBowtie + bowtieButtLength/2 + 30.9, yBowtie + bowtieButtHeight/1.95 + 4.25,
+           xBowtie + bowtieButtLength/2 + 11.3, yBowtie + bowtieButtHeight/1.95 + 11.3);
+   
+  // No-tie snowman         
+  // body                                                                                              
+  fill(250, 250, 250);
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.5, 102, 102);
+  // head
+  fill(254, 254, 254);
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.95, 68, 68);
+  // its left eye
+  fill(0);
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.95 - 6.8, 6.8, 6.8);
+  // its right eye
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2 - 22.6, yBowtie + bowtieButtHeight/1.95 - 6.8, 6.8, 6.8);
+  // smile
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2, yBowtie + bowtieButtHeight/1.95 + smileCorner, 3.4, 3.4);
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2 - 6.8, yBowtie + bowtieButtHeight/1.95 + smileMid, 3.4, 3.4);
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2 - 13.6, yBowtie + bowtieButtHeight/1.95 + smileMid, 3.4, 3.4);
+  ellipse(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2 - 20.4, yBowtie + bowtieButtHeight/1.95 + smileCorner, 3.4, 3.4);
+  // carrot nose
+  fill(252, 212, 11);
+  triangle(xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2 - 11.3, yBowtie + bowtieButtHeight/1.95 + 2.72,
+           xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2 - 30.9, yBowtie + bowtieButtHeight/1.95 + 4.25,
+           xBowtie + bowtieButtLength*1.5 + bowtieButtLength/2 - 11.3, yBowtie + bowtieButtHeight/1.95 + 11.3);
+  
+}
+
+void mouseReleased() {
+  if (screen.equals("menu")) {
+    if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStartButt && mouseY < yStartButt + buttHeight) {
+      screen = "chooseCharacter";
+    } else if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yCtrlsButt && mouseY < yCtrlsButt + buttHeight) { 
+      screen = "controls";
+    } else if (mouseX > xButt && mouseX < xButt + buttLength &&
+      mouseY > yStoryButt && mouseY < yStoryButt + buttHeight) {
+      screen = "story";
+    }
+  } else if (screen.equals("chooseCharacter")) {
+    if (mouseX > xBowtie && mouseX < xBowtie + bowtieButtLength &&
+      mouseY > yBowtie && mouseY < yBowtie + bowtieButtHeight) {
+      pickedBowtie = true; 
+      screen = "gameScreen";
+    } else if (mouseX > xBowtie + bowtieButtLength*1.5 && mouseX < xBowtie + bowtieButtLength*2.5 &&
+               mouseY > yBowtie && mouseY < yBowtie + bowtieButtHeight) {
+     pickedBowtie = false;
+     screen = "gameScreen";
+    }
+  }
+}
+
+void sky() {
+  //if (ySun < height) {                  // changing sky colour
+  //  r += 0.2;
+  //  g += 0.3;
+  //  b += 1;
+  //  neighbourhoodAlpha -= 0.1;
+  //} else {
+  //  r -= 0.2;
+  //  g -= 0.3; 
+  //  b -= 1;
+  //  neighbourhoodAlpha += 0.1;
+  //}
+  
+  if (isAlmostDay) {                  // changing sky colour
+    r += 0.3;
+    g += 0.4;
+    b += 1.1;
+    neighbourhoodAlpha -= 0.1;
+  } else {
+    r -= 0.3;
+    g -= 0.4; 
+    b -= 1.1;
+    neighbourhoodAlpha += 0.1;
+  }
+
+  if (r < 2 || g < 1 || b < 17) {                // boundary so sky doesn't keep subtracting til 0 and go black
+    r = 2;
+    g = 1;
+    b = 17;
+  }
+
+  background(r, g, b);
+
+  // too many loops? lags game a lot
+  for (int i = 0; i < 9; i ++) {
+    fill(r + (i * 1.5), g + (i), b + (i * 5));
+    ellipse(width/2, height/1.25, width*1.75 - (i * 65), (height * 1.75) - (i * 65));
+  }
+}
+
+void snowfall() {                           
+  for (int i = 0; i < snowflakes.length; i ++) {
+    // Snowflake movement
+    snowflakes[i].add(random(-0.7, 0.7), 1);                    // Trying to make the snowflakes go back and forth a bit to make it seem kind of like wind
+
+    // Boundary check
+    if (isAlmostDay == false) {                                 // Only resets snowflake position at the top of screen when it's night (only snows at night and in title/menu and character selection screens)
+      if (snowflakes[i].y > ySidewalk + snowflakeSize) {        // if snowflake passes the ground (out of view) ...
+        snowflakes[i].x = random(width);                        // randomly resets snowflake's xPosition within the specified domain
+        snowflakes[i].y = random(-350, -snowflakeSize);         // randomly resets the snowflake's yPosition within the specified range
+      }
+    }
+    // Draw snowflake
+    fill(255, 255, 255, 175);                                   // not fully white b/c snowflakes are in background
+    ellipse(snowflakes[i].x, snowflakes[i].y, snowflakeSize, snowflakeSize);
+  }
+  
+}
+
+void sun() {
+  // Sun
+  fill(255, 255, 102);
+  ellipse(xSun, ySun, sunSize, sunSize);
+
+  // Sun movement --> essentially, sun is taking one big slow-ish jump when moving into sky (to travel in an arch)
+  xSun -= xSunSpeed;        
+  ySun -= ySunSpeed;
+  ySunSpeed -= ySunDeccel;
+  
+  if (xSun <= width && xSun >= 0 && ySun < yGround) {        // Becomes day basically when sun is visible
+    isDay = true;
+  } else {
+    isDay = false;
+  }
+  
+  if (xSun <= width && xSun >= width*0.28 && ySun < height + sunSize) {          // "Almost day" is to check when the sun is about to rise so the snow can stop falling sooner and so the sky can start changing colour sooner than when it's already day
+    isAlmostDay = true;
+  } else {
+    isAlmostDay = false;
+  }
+}
+
+void shadow() {
+  // Pythagorean theorem? to make shadows relative to the sun's position in the sky
+  q = yGround - ySun;        // a (vertical part of triangle)
+  e = 345;                   // c (hypotenuse)
+  w = sqrt((e*e) - (q*q));   // b (horizontal part of triangle)
+  
+  // Shadow is just black with lowered opacity
+  fill(0, 0, 0, 190);         
+  if (xSun > xTrunk + trunkWidth/2) {                                             // if sun is right of tree, shadow points towards left
+    triangle(xShadow1, yShadow1, ((xTrunk + trunkWidth / 2) - w), 
+      yShadow2, xShadow3, yShadow3);
+    if (xBody > (xTrunk + trunkWidth / 2) - w && xBody < xTrunk + trunkWidth) {   // in triangle shadow or behind tree trunk
+      inShade = true;
+    } else if (xBody > xTrunk && xBody < xTrunk + trunkWidth) {                   // just behind tree trunk (when triangle shadow is gone)
+      inShade = true;
+    } else {
+      inShade = false;
+    }
+  } else {                                                                        // if sun is left of tree, shadow points towards right
+    triangle(xShadow1, yShadow1, (xTrunk + trunkWidth/2 + w),  
+      yShadow2, xShadow3, yShadow3);
+    if (xBody < (xTrunk + xTrunk / 2) + w && xBody > xTrunk) {                    // in triangle shadow or behind tree trunk
+      inShade = true;
+    } else if (xBody > xTrunk && xBody < xTrunk + trunkWidth) {                   // just behind tree trunk (when triangle shadow is gone)
+      inShade = true;
+    } else {
+      inShade = false;
+    }
+  }   
+}
+
+void neighbourhood() {
+  // House
+  fill(215, 192, 173);
+  rect(xHouse, yHouse, houseWidth, houseHeight);
+  // House door
+  fill(252, 238, 168);
+  rect(xHouse + houseWidth/2 - 35, yHouse + houseHeight/2, 70, houseHeight/2);
+  // House roof
+  fill(132, 121, 110);
+  triangle(xRoof1, yRoof1, xRoof2, 
+    yRoof2, xRoof3, yRoof3);
+
+  // Garage
+  fill(218, 170, 128);
+  rect(xGarage, yGarage, garageWidth, garageHeight);
+  // Garage door
+  fill(175, 121, 94);
+  rect(xGarage + garageWidth/2 - 73, yGarage + 35, garageWidth * 0.8, 100);
+  // Garage roof
+  fill(95, 41, 31);
+  quad(xGarRoof1, yGarRoof1, xGarRoof2, yGarRoof2, 
+    xGarRoof3, yGarRoof3, xGarRoof4, yGarRoof4);
+
+
+  // SHADOW (alpha) ~*~*~*~ ~*~ *~*~*~*~ ~* ~* ~* ~ ~* ~*~ ~*~ *~ *~ ~**~*~*~~*~*~~*~*~*~
+  // House
+  fill(0, 0, 0, neighbourhoodAlpha);
+  rect(xHouse, yHouse, houseWidth, houseHeight);
+  // House door
+  rect(xHouse + houseWidth/2 - 35, yHouse + houseHeight/2, 70, houseHeight/2);
+  // House roof
+  triangle(xRoof1, yRoof1, xRoof2, 
+    yRoof2, xRoof3, yRoof3);
+
+  // Garage
+  rect(xGarage, yGarage, garageWidth, garageHeight);
+  // Garage door
+  rect(xGarage + garageWidth/2 - 73, yGarage + 35, garageWidth * 0.8, 100);
+  // Garage roof
+  quad(xGarRoof1, yGarRoof1, xGarRoof2, yGarRoof2, 
+    xGarRoof3, yGarRoof3, xGarRoof4, yGarRoof4);
+}
+
+void tree() {
+  // Tree Trunk
+  fill(65, 36, 9);
+  rect(xTrunk, yTrunk, trunkWidth, trunkHeight);
+  fill(67, 39, 12);
+  rect(xTrunk + trunkWidth/6, yTrunk, trunkWidth*0.65, trunkHeight);
+
+  // Tree leaves
+  for (int i = 0; i < 6; i++) {                    
+    fill(79 + i*4, 168 + i*7, 10 + i*11);                  // to make the tree look kind of more cool with more shades
+    ellipse(xTree + i*5, yTree - i*7.5, treeDiameter - (i*19), treeDiameter - (i*19));
+  }
+}
+
+void player() {
+  // drawing snowman
+  if (pickedBowtie) {                   // if player chose the bowtie snowman
+    // Bowtie
+    strokeWeight(2);
+    if (inShade) {
+      fill(179, 127, 160);           // bowtie turns darker in b/c in shadow
+      stroke(156, 8, 102);
+    } else {
+      fill(255, 155, 220);           // regular bowtie colour
+      stroke(255, 71, 190);
+    }
+    if (faceRight) {                 // bowtie is facing certain way depending which way the snowman is facing
+      ellipse(xHead + headWidth*0.05, yHead - headHeight*0.529, headWidth*0.26, headHeight*0.367);
+      ellipse(xHead - headWidth*0.13, yHead - headHeight*0.529, headWidth*0.22, headHeight*0.22);
+      ellipse(xHead - headWidth*0.338, yHead - headHeight/2, headWidth*0.279, headHeight*0.367);
+      noStroke();
+    } else {
+      ellipse(xHead - headWidth*0.05, yHead - headHeight*0.529, headWidth*0.26, headHeight*0.367);
+      ellipse(xHead + headWidth*0.13, yHead - headHeight*0.529, headWidth*0.22, headHeight*0.22);
+      ellipse(xHead + headWidth*0.338, yHead - headHeight/2, headWidth*0.279, headHeight*0.367);
+      noStroke();
+    }
+  }
+  if (inShade) {
+    fill(190, 190, 190);              // snowman's body turns darker b/c in shadow 
+  } else {
+    fill(250, 250, 250);              // normal colour of snowman's body
+  }
+  ellipse(xBody, yBody, bodyWidth, bodyHeight);
+  if (inShade) {
+    fill(194, 194, 194);              // snowman's head turns darker b/c in shadow
+  } else {
+    fill(254, 254, 254);              // normal colour of snowman's head
+  }
+  ellipse(xHead, yHead, headWidth, headHeight);
+  
+  // snowman's face
+  if (faceRight) {                                      // player facing right
+    // its right eye
+    fill(0);
+    ellipse(xHead, yHead - headHeight/10, 
+      headWidth/10, headHeight/10);
+    // its left eye
+    ellipse(xHead + headWidth/3, yHead - headHeight/10, 
+      headWidth/10, headHeight/10);      
+
+    if (isDay) {                        // Snowman becomes upset if the sun is out :( poor guy
+      // frown
+      ellipse(xHead, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead + headWidth/10, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead + headWidth/5, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead + headWidth/10 * 3, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+    } else {
+      // smile
+      ellipse(xHead, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead + headWidth/10, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead + headWidth/5, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead + headWidth/10 * 3, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+    }
+    // carrot nose
+    fill(252, 212, 11);
+    triangle(xHead + headWidth/6, yHead + headHeight/25, 
+      xHead + headWidth/2.2, yHead + headHeight/16, 
+      xHead + headWidth/6, yHead + headHeight/6);
+  } else {                                // player facing left
+    // its left eye
+    fill(0);
+    ellipse(xHead, yHead - headHeight/10, 
+      headWidth/10, headHeight/10);
+    // its left eye
+    ellipse(xHead - headWidth/3, yHead - headHeight/10, 
+      headWidth/10, headHeight/10);
+    if (isDay) {
+      // frown                                          // Snowman ain't a fan of the sun :(
+      ellipse(xHead, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead - headWidth/10, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead - headWidth/5, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead - headWidth/10 * 3, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+    } else {
+      // smile
+      ellipse(xHead, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead - headWidth/10, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead - headWidth/5, yHead + headHeight/3.5, 
+        headWidth/20, headHeight/20);
+      ellipse(xHead - headWidth/10 * 3, yHead + headHeight/4, 
+        headWidth/20, headHeight/20);
+    }
+    // carrot nose
+    fill(252, 212, 11);
+    triangle(xHead - headWidth/6, yHead + headHeight/25, 
+      xHead - headWidth/2.2, yHead + headHeight/16, 
+      xHead - headWidth/6, yHead + headHeight/6);
+  }
+}
+
+void snowball() {
+  // Magic flying snowball that you can control
+  fill(255);
+  ellipse(xSnowball, ySnowball, snowballSize, snowballSize);
+
+  for (int i = 0; i < xRightEnemy.length; i ++) {                        // if snowball touches enemies coming from the right...
+    if (xSnowball + snowballSize/2 > xRightEnemy[i] && 
+      xSnowball - snowballSize/2 < xRightEnemy[i] + enemyWidth &&
+      ySnowball + snowballSize/2 > yRightEnemy[i] && 
+      ySnowball + snowballSize/2 < yRightEnemy[i] + enemyHeight) {
+
+      //textSize(30);
+      //fill(255);
+      //text("OuCH", width/2, 100);
+      rightEnemyAlive[i] = false;                                        // kids will die
+    }
+  }
+
+  for (int i = 0; i < xLeftEnemy.length; i++) {                          // if snowball touches enemies coming from the left...
+    if (xSnowball + snowballSize/2 > xLeftEnemy[i] && 
+      xSnowball - snowballSize/2 < xLeftEnemy[i] + enemyWidth &&
+      ySnowball + snowballSize/2 > yLeftEnemy[i] && 
+      ySnowball + snowballSize/2 < yLeftEnemy[i] + enemyHeight) {
+
+      //textSize(30);
+      //fill(255, 50, 255);
+      //text("OuCH", width/2 + 50, 100);
+      leftEnemyAlive[i] = false;                                         // enemy will die
+    }
+  }
+  
+  // Snowball Movement
+  if (faceRight) {
+    xSnowball += snowballSpeed;
+    ySnowball += slope * snowballSpeed;                                                      // angle the snowball shoots in is dependent on where the player clicks on the screen
+  } else {
+    xSnowball -= snowballSpeed;
+    ySnowball -= slope *snowballSpeed;
+  }
+  
+  if (snowThrown) {
+    snowballSpeed = 7;
+  } else {                                                                                   // resets snowball at snowman's body
+    //snowballSpeed = 0;                                                                       
+    //slope = 0;
+    xSnowball = xBody;
+    ySnowball = yBody;
+  }
+  
+  if (xSnowball == xBody && ySnowball == yBody) {                                            // can shoot snowball only if it's at the snowman's body first
+    canClick = true;
+  } else {
+    canClick = false;
+  }
+  
+  if (xSnowball - snowballSize/1.99 > width || xSnowball + snowballSize/1.99 < 0 ||
+      ySnowball - snowballSize/1.99 > yGround || ySnowball + snowballSize/1.99 < 0) {        // if the snowball flies out of view, it resets at the snowman's body
+    snowThrown = false;
+  }
+  
+}
+
+void enemies() {                                                        // neighbourhood children are your enemies
+  // what do the enemies have in common?
+  for (int i = 0; i < xRightEnemy.length; i ++) {                       // RIGHT ENEMIES
+    if (rightEnemyAlive[i]) {
+      if (millis() > rightEnemyTimer + (i * 2 * milliseconds)) {        // Assigns a speed to right enemies after certain amount of time
+        if (i % 5 == 0) {      // every 5 enemies (and 0) --> move slower
+          xRightEnemySpeed[i] = 4;
+        } else {
+          xRightEnemySpeed[i] = 6;
+        }
+      }
+
+      xRightEnemy[i] -= xRightEnemySpeed[i];
+
+      // DAMAGE FROM THE RIGHT
+      //dRight = dist(xRightEnemy[i], yRightEnemy[i], xBody, yBody);
+      //if (dRight < bodyWidth) {
+      //  takingDmg = true;
+      //  if (lengthHP >= 0) {
+      //    lengthHP -= 1;
+      //  }
+      //} 
+
+      // Top POM POM                                                      // Children in their blue winter gear
+      fill(218, 255, 239);
+      ellipse(xRightEnemy[i] + enemyWidth/1.39, yRightEnemy[i] - enemyWidth/2.2, 
+        enemyWidth*0.45, enemyWidth*0.4);
+      // left POM POM
+      ellipse(xRightEnemy[i], yRightEnemy[i] + enemyHeight*0.75, 
+        enemyWidth*0.3, enemyWidth*0.3);
+      // Head
+      fill(167, 206, 203);
+      rect(xRightEnemy[i], yRightEnemy[i], enemyWidth, enemyHeight);
+      // Hat
+      fill(100, 182, 172);
+      ellipse(xRightEnemy[i] + enemyWidth/1.87, yRightEnemy[i] + enemyHeight*0.25, 
+        enemyWidth * 1.2, enemyHeight * 1.25);      
+      // Stripe on hat
+      fill(223, 255, 242);
+      ellipse(xRightEnemy[i] + enemyWidth/2, yRightEnemy[i] + enemyHeight/2.5, 
+        enemyWidth*1.1, enemyHeight*1.15);
+      fill(100, 182, 172);
+      ellipse(xRightEnemy[i] + enemyWidth/2, yRightEnemy[i] + enemyHeight/2.3, 
+        enemyWidth*1.05, enemyHeight*1.1);
+      // Face colour
+      fill(167, 206, 203);
+      ellipse(xRightEnemy[i] + enemyWidth/2, yRightEnemy[i] + enemyHeight/2, 
+        enemyWidth, enemyHeight);
+      // Their left eye (our right)
+      fill(0);
+      ellipse(xRightEnemy[i] + enemyWidth/1.7, yRightEnemy[i] + enemyHeight*0.4, 
+        enemyWidth * 0.1, enemyHeight * 0.2);
+      // Their right eye (our left)
+      ellipse(xRightEnemy[i] + enemyWidth * 0.25, yRightEnemy[i] + enemyHeight * 0.4, 
+        enemyWidth * 0.1, enemyHeight * 0.2);
+      // mouth
+      strokeWeight(2.5);
+      stroke(0);
+      line(xRightEnemy[i] + enemyWidth * 0.3, yRightEnemy[i] + enemyHeight * 0.64, 
+        xRightEnemy[i] + enemyWidth * 0.4, yRightEnemy[i] + enemyHeight * 0.74);
+      line(xRightEnemy[i] + enemyWidth * 0.4, yRightEnemy[i] + enemyHeight * 0.74, 
+        xRightEnemy[i] + enemyWidth * 0.52, yRightEnemy[i] + enemyHeight * 0.64);
+      noStroke();      
+      // Scarf
+      fill(93, 115, 126);
+      rect(xRightEnemy[i], yRightEnemy[i] + enemyHeight*0.75, 
+        enemyWidth, enemyHeight*0.25);
+      fill(252, 255, 253);
+      rect(xRightEnemy[i] + enemyWidth*0.2, yRightEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.8, enemyHeight*0.25);
+      fill(93, 115, 126);
+      rect(xRightEnemy[i] + enemyWidth*0.4, yRightEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.6, enemyHeight*0.25);
+      fill(252, 255, 253);
+      rect(xRightEnemy[i] + enemyWidth*0.6, yRightEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.4, enemyHeight*0.25);
+      fill(93, 115, 126);
+      rect(xRightEnemy[i] + enemyWidth*0.8, yRightEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.2, enemyHeight*0.25);
+      // Right POM POM
+      fill(218, 255, 239);
+      ellipse(xRightEnemy[i] + enemyWidth, yRightEnemy[i] + enemyHeight*0.75, 
+        enemyWidth*0.3, enemyWidth*0.3);
+    }
+  }
+  for (int i = 0; i < xLeftEnemy.length; i ++) {                       // LEFT ENEMIES
+    if (leftEnemyAlive[i]) {
+      if (millis() > leftEnemyTimer + (i * 2 * milliseconds)) {        // Assigns a speed to left enemies after certain amount of time
+
+        if (i <= 15) {                                                 // the first 15 enemies coming from the left
+          if (i % 3 == 0) {                                            // every 7 enemies (and 0) --> move faster
+            xLeftEnemySpeed[i] = 9;
+          } else {
+            xLeftEnemySpeed[i] = 7;
+          }
+        } else {                                                       // greater than 15
+          if (i < 44) {                                                // to make sure it does not exceed the amount of left enemies in the array
+            xLeftEnemySpeed[i] = 8;
+            xLeftEnemySpeed[i + 1] = 8;                                // two of them start moving at the same time
+          }
+          if (i % 2 == 0) {
+            yLeftEnemy[i] = yGround - (enemyHeight * 2);               // trying to stack these guys --> intimidating
+          }
+        }
+      }
+
+      xLeftEnemy[i] += xLeftEnemySpeed[i];
+
+      // DAMAGE FROM THE LEFT
+      //dLeft = dist(xLeftEnemy[i], yLeftEnemy[i], xBody, yBody);
+      //if (dLeft < bodyWidth) {
+      //  takingDmg = true;
+      //  if (lengthHP >= 0) {
+      //    lengthHP -= 1;
+      //  }
+      //}
+
+      // Top POM POM                                                    // Children in their red winter gear
+      fill(249, 192, 200);
+      ellipse(xLeftEnemy[i] + enemyWidth/4.55, yLeftEnemy[i] - enemyWidth/2.2, 
+        enemyWidth*0.45, enemyWidth*0.4);
+      // Right POM POM
+      ellipse(xLeftEnemy[i] + enemyWidth, yLeftEnemy[i] + enemyHeight*0.75, 
+        enemyWidth*0.3, enemyWidth*0.3);
+      // Head
+      fill(255, 149, 140);
+      rect(xLeftEnemy[i], yLeftEnemy[i], enemyWidth, enemyHeight);
+      // Hat
+      fill(238, 29, 57);
+      ellipse(xLeftEnemy[i] + enemyWidth/2.14, yLeftEnemy[i] + enemyHeight*0.25, 
+        enemyWidth*1.2, enemyHeight*1.25);       
+      // Stripe on hat
+      fill(255, 192, 201);
+      ellipse(xLeftEnemy[i] + enemyWidth/2, yLeftEnemy[i] + enemyHeight/2.5, 
+        enemyWidth*1.1, enemyHeight*1.15);
+      fill(238, 29, 57);
+      ellipse(xLeftEnemy[i] + enemyWidth/2, yLeftEnemy[i] + enemyHeight/2.3, 
+        enemyWidth*1.05, enemyHeight*1.1);
+      // face colour
+      fill(255, 149, 140);
+      ellipse(xLeftEnemy[i] + enemyWidth/2, yLeftEnemy[i] + enemyHeight/2, 
+        enemyWidth, enemyHeight);
+      // their left eye (our right)
+      fill(0);
+      ellipse(xLeftEnemy[i] + enemyWidth - enemyWidth/1.7, yLeftEnemy[i] + enemyHeight*0.4, 
+        enemyWidth * 0.1, enemyHeight * 0.2);
+      // their right eye (our left)
+      ellipse(xLeftEnemy[i] + enemyWidth*0.75, yLeftEnemy[i] + enemyHeight*0.4, 
+        enemyWidth*0.1, enemyHeight*0.2);
+      // mouth
+      strokeWeight(2.5);
+      stroke(0);
+      line(xLeftEnemy[i] + enemyWidth*0.7, yLeftEnemy[i] + enemyHeight*0.64, 
+        xLeftEnemy[i] + enemyWidth*0.6, yLeftEnemy[i] + enemyHeight*0.74);
+      line(xLeftEnemy[i] + enemyWidth*0.6, yLeftEnemy[i] + enemyHeight*0.74, 
+        xLeftEnemy[i] + enemyWidth*0.48, yLeftEnemy[i] + enemyHeight*0.64);
+      noStroke();
+      // Scarf
+      fill(207, 18, 89);
+      rect(xLeftEnemy[i], yLeftEnemy[i] + enemyHeight*0.75, 
+        enemyWidth, enemyHeight*0.25);
+      fill(238, 224, 203);
+      rect(xLeftEnemy[i] + enemyWidth*0.2, yLeftEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.8, enemyHeight*0.25);
+      fill(207, 18, 89);
+      rect(xLeftEnemy[i] + enemyWidth*0.4, yLeftEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.6, enemyHeight*0.25);
+      fill(238, 224, 203);
+      rect(xLeftEnemy[i] + enemyWidth*0.6, yLeftEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.4, enemyHeight*0.25);
+      fill(207, 18, 89);
+      rect(xLeftEnemy[i] + enemyWidth*0.8, yLeftEnemy[i] + enemyHeight*0.75, 
+        enemyWidth * 0.2, enemyHeight*0.25);
+      // Left POM POM
+      fill(249, 192, 200);
+      ellipse(xLeftEnemy[i], yLeftEnemy[i] + enemyHeight*0.75, 
+        enemyWidth*0.3, enemyWidth*0.3);
+    }
+  }
+}
+
+void sunDamage() {
+  if (isDay && inShade == false) {                                   // if snowman in direct sunlight?                          
+    lengthHP -= 0.15;                                                // #SUNBURNT
+    textSize(25);
+    fill(255, 0, 0);
+    if (pickedBowtie) {
+      text("hot!", xHead - headWidth/2, yHead - headHeight/1.27);    // the text "hot!" has to be slightly higher if the snowman's wearing a bowtie :)
+    } else {
+      text("hot!", xHead - headWidth/2, yHead - headHeight/1.6);
+    }
+    text("SURNBURNING", xHP, yHP);
+  }
+}
+
+void HP() {
+  // HP bar top left corner
+  fill(226, 255, 179);
+  rect(xHP, yHP, 165, heightHP);
+  if (lengthHP >= 82) {                             // HP is green if above 1/2
+    fill(146, 244, 0);
+  } else if (lengthHP >= 30) {
+    fill(228, 135, 135);                            // HP turns red when below 1/2
+  } else {
+    fill(195, 0, 0);                                // but HP turns ReAlLy red at the 30HP mark
+  }
+  rect(xHP, yHP, lengthHP, heightHP);
+  if (lengthHP <= 0) {                              // game over if you run  out of HP
+    screen = "gameOver";
+  }
+}
+
+void gameScreen() {
+
+  // keeping snowman's head relative to the body (updating)
+  headWidth = bodyHeight * 2/3;
+  headHeight = bodyHeight * 2/3;
+  xHead = xBody;
+  yHead = yBody - bodyHeight/3 - headHeight/2;
+
+  yBody -= jumpSpeed;                          // yBott technically has jumpSpeed always subtracting from it (just that sometimes jumpSpeed = 0)
+  jumpSpeed -= gravity;               
+
+  // Boundary check
+  if (yBody > yGround - bodyHeight/2) {        // Make sure snowman does not fall through ground
+    yBody = yGround - bodyHeight/2;
+  }
+
+  // draws sky/background
+  sky();
+  noStroke();
+
+  snowfall();
+
+  HP();
+
+  sun();
+
+  // Houses
+  neighbourhood();
+
+  // Sidewalk
+  stroke(53, 53, 53);
+  strokeWeight(10);
+  fill(178, 178, 178);
+  rect(xGround - 10, ySidewalk, width + 15, 75);
+  fill(0, 0, 0, neighbourhoodAlpha);
+  stroke(0, 0, 0, neighbourhoodAlpha);
+  rect(xGround - 10, ySidewalk, width + 15, 75);
+  noStroke();
+
+  // Ground
+  fill(246, 246, 246);
+  rect(xGround, yGround, width, height/2);
+  fill(255);                                              // white snow on top of ground
+  rect(xGround, yGround, width, height/10);
+
+  // draws shadow
+  shadow();
+
+  // draws tree
+  tree();
+
+  // draws snowman player
+  player();
+
+  // magic snowball?
+  snowball();
+
+  // draws the kids
+  enemies();
+  
+  sunDamage();
+
+
+  println("KeyCde:" + keyCode + " hurt? " + takingDmg + " ySun:" + ySun + 
+          " isDay?" + isDay + " inShade?" + inShade + " right" + chooseRight + " left" + chooseLeft);
+}
+
+void gameOver() {
+  background(0);
+  textSize(125);
+  fill(255);
+  text("GAME OVER", 100, height/2 - 100);
+}
+
+void draw() {
+
+  if (screen.equals("menu")) {
+    menu();
+  } else if(screen.equals("chooseCharacter")) {
+    chooseCharacter();
+  } else if (screen.equals("gameScreen")) {
+    gameScreen();
+  } else if (screen.equals("controls")) {
+    controls();
+  } else if (screen.equals("story")) {
+    story();
+  } else if (screen.equals("gameOver")) {
+    gameOver();
+  }
+}
+
+void keyPressed() {
+  if (screen.equals("controls") || 
+      screen.equals("story") || 
+      screen.equals("chooseCharacter")) {      
+    if (keyCode == 8) {                          // [backspace] to esc from control, story, and character selection screens
+      screen = "menu";
+    }
+  }
+  
+  if (keyCode == 68) {                           // move right [d]
+    faceRight = true;
+    if (xBody + bodyWidth/2 < width) {           // right edge boundary (can't go off screen)
+      if (yBody < yGround - bodyHeight/2) {      // if snowman is in the air...
+        xBody += 16;                             // can move right twice as fast
+      } else {
+        xBody += 8;
+      }
+    }
+  } else if (keyCode == 65) {                    // move left [a]
+    faceRight = false;
+    if (xBody - bodyWidth/2 > 0) {               // left edge boundary (can't go off screen)
+      if (yBody < yGround - bodyHeight/2) {      // if snowman is in the air...
+        xBody -= 16;                             // can move left twice as fast
+      } else {
+        xBody -= 8;
+      }
+    }
+  }
+
+  if (keyCode == 32 || keyCode == 87) {          // jump [w] or [space]
+    if (yBody == yGround - bodyHeight/2) {       // can only jump if on ground first
+      jumpSpeed = 12;
+      gravity = 0.5;
+    }
+  }
+
+  if (keyCode == 83) {                            // gravity increases [s]
+    gravity = 1.4;                                // fall down faster
+  }
+}
+
+void mouseClicked() {
+  if (screen.equals("gameScreen")) {
+    timesClicked += 1;
+    if (mouseY < yGround) {
+      if (timesClicked >= 1) {                                // purpose of "timesClicked" is just to not let the snowball shoot the moment you choose your character and start the game (cuz clicking the button counts as a click). You technically shoot on your second "click"
+        snowThrown = true;
+        if (canClick) {                                       // purpose of "canClick" is to limit the player to be able to click (assign the snowball a direction) only once until the snowball flies off-screen and resets at Snowman's body
+          slope = (mouseY - yBody) / (mouseX - xBody);        // otherwise the slope would change every time if the player were to click so the snowball is able to change direction midflight (depending where they click) and that's gross
+        }                                                       
+      }
+    }
+  }
+}
